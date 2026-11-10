@@ -1,6 +1,6 @@
 """
 api/index.py
-Microsserviço FastAPI adaptado para Serverless na Vercel.
+Microsserviço FastAPI ultra-resiliente adaptado para Serverless na Vercel.
 Detecção de Fraude em Cartão de Crédito — MegaLoja S.A.
 Grupo 8 - PI V FATEC Ourinhos (Prof. Dr. Sidney Carlos Ferrari)
 """
@@ -9,19 +9,20 @@ import json
 import joblib
 import pandas as pd
 import numpy as np
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.docs import get_swagger_ui_html
 from pydantic import BaseModel, Field
 
 app = FastAPI(
     title="MegaLoja S.A. - Fraud Detection API (Vercel Serverless)",
     description="API de avaliação preditiva de risco de fraude em tempo real hospedada na Vercel.",
     version="1.1.0",
-    docs_url="/docs",
-    openapi_url="/openapi.json"
+    docs_url=None,       # Gerenciado explicitamente abaixo para compatibilidade total
+    openapi_url=None
 )
 
-# Habilitar CORS para permitir chamadas de qualquer frontend/dashboard
+# Habilitar CORS irrestrito
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -30,18 +31,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Resolução de caminho segura para ambiente Serverless
+# Resolução de caminho segura para ambiente Serverless Vercel
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "credit_card_fraud_model.joblib")
 METADATA_PATH = os.path.join(BASE_DIR, "model_metadata.json")
 
-# Fallback para diretório raiz caso não esteja em api/
+# Fallback para raiz caso execute fora de api/
 if not os.path.exists(MODEL_PATH):
     MODEL_PATH = os.path.join(os.path.dirname(BASE_DIR), "credit_card_fraud_model.joblib")
 if not os.path.exists(METADATA_PATH):
     METADATA_PATH = os.path.join(os.path.dirname(BASE_DIR), "model_metadata.json")
 
-# Carregamento do modelo serializado na inicialização
 pipeline_model = None
 metadata = {}
 
@@ -52,7 +52,7 @@ try:
         with open(METADATA_PATH, "r", encoding="utf-8") as f:
             metadata = json.load(f)
 except Exception as e:
-    print(f"Erro ao carregar modelo: {e}")
+    print(f"Aviso ao carregar artefatos: {e}")
 
 class TransactionInput(BaseModel):
     Time: float = Field(..., description="Segundos decorridos", example=406.0)
@@ -87,16 +87,19 @@ class TransactionInput(BaseModel):
     V28: float = Field(default=0.0, example=-0.14)
 
 class PredictionResponse(BaseModel):
+    model_config = {"protected_namespaces": ()}
     is_fraud: bool
     fraud_probability: float
     recommendation: str
     model_name: str
     status_code: int
 
+# Health check suportando todos os formatos de roteamento da Vercel
 @app.get("/", tags=["Health Check"])
 @app.get("/api", tags=["Health Check"])
 @app.get("/api/", tags=["Health Check"])
 @app.get("/api/index", tags=["Health Check"])
+@app.get("/api/index.py", tags=["Health Check"])
 def root():
     return {
         "status": "online",
@@ -108,9 +111,25 @@ def root():
         "documentation": "/docs"
     }
 
+# Documentação Swagger compatível
+@app.get("/docs", include_in_schema=False)
+@app.get("/api/docs", include_in_schema=False)
+@app.get("/api/index.py/docs", include_in_schema=False)
+async def custom_swagger():
+    return get_swagger_ui_html(openapi_url="/openapi.json", title="MegaLoja API Docs")
+
+@app.get("/openapi.json", include_in_schema=False)
+@app.get("/api/openapi.json", include_in_schema=False)
+@app.get("/api/index.py/openapi.json", include_in_schema=False)
+async def custom_openapi():
+    return app.openapi()
+
+# Endpoint de predição
 @app.post("/predict", response_model=PredictionResponse, tags=["Inference"])
 @app.post("/api/predict", response_model=PredictionResponse, tags=["Inference"])
 @app.post("/api/index/predict", response_model=PredictionResponse, tags=["Inference"])
+@app.post("/api/index.py/predict", response_model=PredictionResponse, tags=["Inference"])
+@app.post("/api/index.py", response_model=PredictionResponse, tags=["Inference"])
 def predict_transaction(transaction: TransactionInput):
     global pipeline_model
     if pipeline_model is None:
@@ -148,3 +167,15 @@ def predict_transaction(transaction: TransactionInput):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro interno de inferência: {str(e)}")
+
+# Catch-all de segurança máxima
+@app.api_route("/{full_path:path}", methods=["GET", "POST", "HEAD", "OPTIONS"])
+async def catch_all(request: Request, full_path: str):
+    if request.method == "POST":
+        try:
+            body = await request.json()
+            transaction = TransactionInput(**body)
+            return predict_transaction(transaction)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Payload inválido: {str(e)}")
+    return root()
