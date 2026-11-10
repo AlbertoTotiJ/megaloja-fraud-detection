@@ -1,47 +1,62 @@
 """
-main.py
-Microsserviço FastAPI para inferência em tempo real de fraudes em transações.
-Grupo 8 - PI V - FATEC Ourinhos (Prof. Dr. Sidney Carlos Ferrari)
+api/index.py
+Microsserviço FastAPI ultra-resiliente adaptado para Serverless na Vercel.
+Detecção de Fraude em Cartão de Crédito — MegaLoja S.A.
+Grupo 8 - PI V FATEC Ourinhos (Prof. Dr. Sidney Carlos Ferrari)
 """
-from fastapi import FastAPI, HTTPException, status
-from pydantic import BaseModel, Field
+import os
+import json
 import joblib
 import pandas as pd
 import numpy as np
-import os
-import json
+from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.docs import get_swagger_ui_html
+from pydantic import BaseModel, Field
 
 app = FastAPI(
-    title="MegaLoja S.A. - Fraud Detection API",
-    description="API de avaliação preditiva de risco de fraude em transações de cartão de crédito.",
-    version="1.0.0"
+    title="MegaLoja S.A. - Fraud Detection API (Vercel Serverless)",
+    description="API de avaliação preditiva de risco de fraude em tempo real hospedada na Vercel.",
+    version="1.1.0",
+    docs_url=None,       # Gerenciado explicitamente abaixo para compatibilidade total
+    openapi_url=None
 )
 
-MODEL_PATH = "credit_card_fraud_model.joblib"
-METADATA_PATH = "model_metadata.json"
+# Habilitar CORS irrestrito
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Resolução de caminho segura para ambiente Serverless Vercel
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "credit_card_fraud_model.joblib")
+METADATA_PATH = os.path.join(BASE_DIR, "model_metadata.json")
+
+# Fallback para raiz caso execute fora de api/
+if not os.path.exists(MODEL_PATH):
+    MODEL_PATH = os.path.join(os.path.dirname(BASE_DIR), "credit_card_fraud_model.joblib")
+if not os.path.exists(METADATA_PATH):
+    METADATA_PATH = os.path.join(os.path.dirname(BASE_DIR), "model_metadata.json")
 
 pipeline_model = None
 metadata = {}
 
-@app.on_event("startup")
-def load_artifacts():
-    global pipeline_model, metadata
+try:
     if os.path.exists(MODEL_PATH):
         pipeline_model = joblib.load(MODEL_PATH)
-        print(f"Modelo carregado de: {MODEL_PATH}")
-    else:
-        print(f"Aviso: {MODEL_PATH} ainda não foi gerado. Execute export_model.py!")
-
     if os.path.exists(METADATA_PATH):
-        with open(METADATA_PATH, 'r', encoding='utf-8') as f:
+        with open(METADATA_PATH, "r", encoding="utf-8") as f:
             metadata = json.load(f)
-    else:
-        metadata = {"version": "1.0.0", "features": ["Time", "Amount"] + [f"V{i}" for i in range(1, 29)] + ["Hour"]}
+except Exception as e:
+    print(f"Aviso ao carregar artefatos: {e}")
 
-# Esquema de Entrada
 class TransactionInput(BaseModel):
-    Time: float = Field(..., description="Segundos decorridos desde a primeira transação", example=406.0)
-    Amount: float = Field(..., description="Valor monetário da transação", example=149.62)
+    Time: float = Field(..., description="Segundos decorridos", example=406.0)
+    Amount: float = Field(..., description="Valor monetário", example=149.62)
     V1: float = Field(default=0.0, example=-2.31)
     V2: float = Field(default=0.0, example=1.95)
     V3: float = Field(default=0.0, example=-1.60)
@@ -72,65 +87,95 @@ class TransactionInput(BaseModel):
     V28: float = Field(default=0.0, example=-0.14)
 
 class PredictionResponse(BaseModel):
+    model_config = {"protected_namespaces": ()}
     is_fraud: bool
     fraud_probability: float
     recommendation: str
+    model_name: str
     status_code: int
 
+# Health check suportando todos os formatos de roteamento da Vercel
 @app.get("/", tags=["Health Check"])
+@app.get("/api", tags=["Health Check"])
+@app.get("/api/", tags=["Health Check"])
+@app.get("/api/index", tags=["Health Check"])
+@app.get("/api/index.py", tags=["Health Check"])
 def root():
     return {
         "status": "online",
-        "service": "MegaLoja Fraud Guard API",
+        "service": "MegaLoja Fraud Guard API (Vercel Serverless)",
         "model_loaded": pipeline_model is not None,
-        "model_name": metadata.get("model_name", "MegaLoja-Fraud-Detector"),
+        "model_name": metadata.get("model_name", "MegaLoja-Fraud-Detector-Bagging-LogisticRegression"),
         "algorithm": metadata.get("algorithm", "BaggingClassifier (base_estimator=LogisticRegression)"),
         "model_version": metadata.get("version", "1.1.0"),
         "documentation": "/docs"
     }
 
+# Documentação Swagger compatível
+@app.get("/docs", include_in_schema=False)
+@app.get("/api/docs", include_in_schema=False)
+@app.get("/api/index.py/docs", include_in_schema=False)
+async def custom_swagger():
+    return get_swagger_ui_html(openapi_url="/openapi.json", title="MegaLoja API Docs")
+
+@app.get("/openapi.json", include_in_schema=False)
+@app.get("/api/openapi.json", include_in_schema=False)
+@app.get("/api/index.py/openapi.json", include_in_schema=False)
+async def custom_openapi():
+    return app.openapi()
+
+# Endpoint de predição
 @app.post("/predict", response_model=PredictionResponse, tags=["Inference"])
+@app.post("/api/predict", response_model=PredictionResponse, tags=["Inference"])
+@app.post("/api/index/predict", response_model=PredictionResponse, tags=["Inference"])
+@app.post("/api/index.py/predict", response_model=PredictionResponse, tags=["Inference"])
+@app.post("/api/index.py", response_model=PredictionResponse, tags=["Inference"])
 def predict_transaction(transaction: TransactionInput):
     global pipeline_model
     if pipeline_model is None:
-        if os.path.exists(MODEL_PATH):
-            pipeline_model = joblib.load(MODEL_PATH)
-        else:
-            raise HTTPException(
-                status_code=503,
-                detail="Modelo não carregado no servidor. Execute export_model.py para gerar os artefatos."
-            )
-            
+        raise HTTPException(
+            status_code=503,
+            detail="Modelo preditivo não disponível no servidor."
+        )
+
     try:
-        # Converter payload para DataFrame
         data_dict = transaction.model_dump()
         df_input = pd.DataFrame([data_dict])
-        
-        # Engenharia de atributos (Hour)
         df_input['Hour'] = (df_input['Time'] / 3600).astype(int) % 24
-        
-        # Garantir ordenação das features
+
         expected_features = metadata.get("features", list(df_input.columns))
-        # Reordenar se todas existirem
         if set(expected_features).issubset(set(df_input.columns)):
             df_input = df_input[expected_features]
-            
+
         prob_fraud = float(pipeline_model.predict_proba(df_input)[0, 1])
         threshold = metadata.get("decision_threshold", 0.50)
         is_fraud = prob_fraud >= threshold
-        
+
         if prob_fraud >= 0.75:
             recommendation = "BLOQUEIO IMEDIATO: Risco Crítico de Fraude"
         elif prob_fraud >= threshold:
             recommendation = "DESAFIO DE SEGURANÇA: Solicitar Verificação 2FA / Biometria"
         else:
             recommendation = "APROVADA: Transação com comportamento típico"
-            
+
         return PredictionResponse(
             is_fraud=is_fraud,
             fraud_probability=round(prob_fraud, 4),
             recommendation=recommendation,
+            model_name=metadata.get("model_name", "BaggingClassifier"),
             status_code=status.HTTP_200_OK
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro interno de inferência: {str(e)}")
+
+# Catch-all de segurança máxima
+@app.api_route("/{full_path:path}", methods=["GET", "POST", "HEAD", "OPTIONS"])
+async def catch_all(request: Request, full_path: str):
+    if request.method == "POST":
+        try:
+            body = await request.json()
+            transaction = TransactionInput(**body)
+            return predict_transaction(transaction)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Payload inválido: {str(e)}")
+    return root()
