@@ -1,0 +1,10 @@
+.venv
+__pycache__
+*.pdf
+*.ipynb
+app_dashboard.py
+export_model.py
+Dockerfile
+docker-compose.yml
+creditcard.csv
+.maestri

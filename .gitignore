@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Maestri
+.maestri/
+
+# Datasets pesados
+*.csv
+creditcard.csv
+
+# Logs & OS
+*.log
+.DS_Store
+Thumbs.db
