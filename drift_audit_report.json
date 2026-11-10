@@ -1,0 +1,60 @@
+{
+    "report_id": "drift-audit-20261110204422",
+    "timestamp": "2026-11-10T20:44:22.720335",
+    "overall_status": "CRITICAL_DRIFT_DETECTED",
+    "action_required": true,
+    "drift_ratio": 0.625,
+    "variables_in_drift": 5,
+    "total_variables_analyzed": 8,
+    "recommendation": "DISPARO IMEDIATO DE PIPELINE CI/CD: Retreinar modelo com novas transa\u00e7\u00f5es e recalibrar threshold.",
+    "detailed_metrics": {
+        "Amount": {
+            "ks_statistic": 0.5205,
+            "p_value": 0.0,
+            "psi": 1.5402,
+            "drift_detected": true
+        },
+        "Hour": {
+            "ks_statistic": 0.039,
+            "p_value": 0.56901,
+            "psi": 0.0295,
+            "drift_detected": false
+        },
+        "V4": {
+            "ks_statistic": 0.612,
+            "p_value": 0.0,
+            "psi": 1.9878,
+            "drift_detected": true
+        },
+        "V10": {
+            "ks_statistic": 0.0405,
+            "p_value": 0.5202,
+            "psi": 0.0088,
+            "drift_detected": false
+        },
+        "V12": {
+            "ks_statistic": 0.6185,
+            "p_value": 0.0,
+            "psi": 1.9537,
+            "drift_detected": true
+        },
+        "V14": {
+            "ks_statistic": 0.632,
+            "p_value": 0.0,
+            "psi": 2.133,
+            "drift_detected": true
+        },
+        "V17": {
+            "ks_statistic": 0.6475,
+            "p_value": 0.0,
+            "psi": 2.2327,
+            "drift_detected": true
+        },
+        "V21": {
+            "ks_statistic": 0.0415,
+            "p_value": 0.48862,
+            "psi": 0.0133,
+            "drift_detected": false
+        }
+    }
+}

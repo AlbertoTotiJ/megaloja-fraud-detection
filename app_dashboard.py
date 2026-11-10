@@ -92,3 +92,33 @@ with col2:
                 st.error(f"Erro retornado pela API: {response.status_code} - {response.text}")
         except Exception as e:
             st.error(f"Não foi possível conectar à API em `{api_url}`. Verifique se o serviço está ativo. Detalhes: {e}")
+
+st.markdown("---")
+st.subheader("📈 Etapa 5: Monitoramento Contínuo e Data Drift (CRISP-DM / MLOps)")
+st.caption("Implementação da Etapa 5 descrita no Slide 18 da aula do Prof. Dr. Sidney Carlos Ferrari.")
+
+col_drift1, col_drift2 = st.columns([1, 1])
+
+with col_drift1:
+    if st.button("📊 Auditar Data Drift (Operação Normal)", use_container_width=True):
+        try:
+            import drift_monitor
+            report = drift_monitor.run_drift_analysis(simulate_drift=False)
+            st.success(f"**Status MLOps:** {report['overall_status']}")
+            st.info(f"**Recomendação:** {report['recommendation']}")
+            df_drift = pd.DataFrame(report['detailed_metrics']).T
+            st.dataframe(df_drift, use_container_width=True)
+        except Exception as e:
+            st.error(f"Erro ao rodar auditoria local: {e}")
+
+with col_drift2:
+    if st.button("⚠️ Simular Anomalia / Black Friday (Gatilho de Retreinamento)", use_container_width=True):
+        try:
+            import drift_monitor
+            report = drift_monitor.run_drift_analysis(simulate_drift=True)
+            st.error(f"**Status MLOps:** {report['overall_status']}")
+            st.warning(f"**Recomendação:** {report['recommendation']}")
+            df_drift = pd.DataFrame(report['detailed_metrics']).T
+            st.dataframe(df_drift, use_container_width=True)
+        except Exception as e:
+            st.error(f"Erro ao simular drift: {e}")
