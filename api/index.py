@@ -94,6 +94,9 @@ class PredictionResponse(BaseModel):
     status_code: int
 
 @app.get("/", tags=["Health Check"])
+@app.get("/api", tags=["Health Check"])
+@app.get("/api/", tags=["Health Check"])
+@app.get("/api/index", tags=["Health Check"])
 def root():
     return {
         "status": "online",
@@ -106,6 +109,8 @@ def root():
     }
 
 @app.post("/predict", response_model=PredictionResponse, tags=["Inference"])
+@app.post("/api/predict", response_model=PredictionResponse, tags=["Inference"])
+@app.post("/api/index/predict", response_model=PredictionResponse, tags=["Inference"])
 def predict_transaction(transaction: TransactionInput):
     global pipeline_model
     if pipeline_model is None:
