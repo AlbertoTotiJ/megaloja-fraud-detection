@@ -21,7 +21,8 @@ Painel operacional para análise preditiva de transações com cartões de créd
 """)
 
 st.sidebar.header("⚙️ Configurações da API")
-api_url = st.sidebar.text_input("Endpoint da API:", "http://localhost:8000/predict")
+api_url = st.sidebar.text_input("Endpoint da API:", "https://megaloja-fraud-detection.vercel.app/predict")
+st.sidebar.caption("💡 Conectado à API Serverless na nuvem Vercel")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 👥 Equipe do Projeto (Grupo 8)")
