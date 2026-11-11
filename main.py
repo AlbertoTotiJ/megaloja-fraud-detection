@@ -597,7 +597,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                             <div id="checkoutProdIcon" style="width: 54px; height: 54px; background: var(--color-muted); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"></div>
                             <div>
                                 <h4 class="h6 mb-1 text-white fw-bold" id="checkoutProdNome">Apple iPhone 15 Pro Max 256GB</h4>
-                                <span class="text-secondary small" id="checkoutProdSub">Titânio Natural • Tela 6.7" OLED</span>
+                                <span class="text-secondary small" id="checkoutProdSub">Titânio Natural • Tela 6.7 OLED</span>
                             </div>
                         </div>
 
@@ -855,83 +855,83 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         // Catálogo de Produtos da Loja (Passo 1: Selecionar Produto)
         const PRODUTOS = [
             {
-                id: "prod-1",
-                nome: "Apple iPhone 15 Pro Max 256GB",
-                categoria: "Smartphones",
-                subtitulo: "Titânio Natural • OLED 6.7\" • Chip A17 Pro",
+                id: 'prod-1',
+                nome: 'Apple iPhone 15 Pro Max 256GB',
+                categoria: 'Smartphones',
+                subtitulo: 'Titânio Natural • Tela 6.7 OLED • Chip A17 Pro',
                 preco: 8999.00,
-                icone: `<svg class="icon-xl text-success" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>`,
-                badge: "MAIS VENDIDO"
+                icone: '<svg class="icon-xl text-success" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>',
+                badge: 'MAIS VENDIDO'
             },
             {
-                id: "prod-2",
-                nome: "Notebook Gamer Dell G15",
-                categoria: "Computadores",
-                subtitulo: "Intel i7 • RTX 4050 • 16GB RAM • SSD 512GB",
+                id: 'prod-2',
+                nome: 'Notebook Gamer Dell G15',
+                categoria: 'Computadores',
+                subtitulo: 'Intel i7 • RTX 4050 • 16GB RAM • SSD 512GB',
                 preco: 6499.00,
-                icone: `<svg class="icon-xl text-info" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg>`,
-                badge: "ALTA PERFORMANCE"
+                icone: '<svg class="icon-xl text-info" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg>',
+                badge: 'ALTA PERFORMANCE'
             },
             {
-                id: "prod-3",
-                nome: "Smart TV Samsung Neo QLED 65\" 4K",
-                categoria: "TV & Vídeo",
-                subtitulo: "120Hz • Mini LED • Neural Quantum 4K",
+                id: 'prod-3',
+                nome: 'Smart TV Samsung Neo QLED 65 4K',
+                categoria: 'TV & Vídeo',
+                subtitulo: '120Hz • Mini LED • Neural Quantum 4K',
                 preco: 5299.00,
-                icone: `<svg class="icon-xl text-warning" viewBox="0 0 24 24"><rect width="20" height="15" x="2" y="3" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>`,
-                badge: "CINEMA EM CASA"
+                icone: '<svg class="icon-xl text-warning" viewBox="0 0 24 24"><rect width="20" height="15" x="2" y="3" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>',
+                badge: 'CINEMA EM CASA'
             },
             {
-                id: "prod-4",
-                nome: "Console PlayStation 5 Slim 1TB",
-                categoria: "Games",
-                subtitulo: "Controle DualSense • Edição Digital • Áudio 3D",
+                id: 'prod-4',
+                nome: 'Console PlayStation 5 Slim 1TB',
+                categoria: 'Games',
+                subtitulo: 'Controle DualSense • Edição Digital • Áudio 3D',
                 preco: 3799.00,
-                icone: `<svg class="icon-xl text-primary" style="color: #818cf8 !important;" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M15 9h2v6h-2z"/></svg>`,
-                badge: "GAMER"
+                icone: '<svg class="icon-xl text-primary" style="color: #818cf8 !important;" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M15 9h2v6h-2z"/></svg>',
+                badge: 'GAMER'
             },
             {
-                id: "prod-5",
-                nome: "Headphone Sony WH-1000XM5 ANC",
-                categoria: "Áudio",
-                subtitulo: "Cancelamento Ativo de Ruído • Bateria 30h",
+                id: 'prod-5',
+                nome: 'Headphone Sony WH-1000XM5 ANC',
+                categoria: 'Áudio',
+                subtitulo: 'Cancelamento Ativo de Ruído • Bateria 30h',
                 preco: 2199.00,
-                icone: `<svg class="icon-xl text-info" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>`,
-                badge: "OFERTA"
+                icone: '<svg class="icon-xl text-info" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>',
+                badge: 'OFERTA'
             },
             {
-                id: "prod-6",
-                nome: "Apple Watch Series 9 GPS 45mm",
-                categoria: "Wearables",
-                subtitulo: "Caixa Alumínio • Tela Retina • Sensor ECG",
+                id: 'prod-6',
+                nome: 'Apple Watch Series 9 GPS 45mm',
+                categoria: 'Wearables',
+                subtitulo: 'Caixa Alumínio • Tela Retina • Sensor ECG',
                 preco: 3299.00,
-                icone: `<svg class="icon-xl text-success" viewBox="0 0 24 24"><rect width="12" height="16" x="6" y="4" rx="3"/><path d="M9 4V2h6v2M9 20v2h6v-2"/></svg>`,
-                badge: "PREMIUM"
+                icone: '<svg class="icon-xl text-success" viewBox="0 0 24 24"><rect width="12" height="16" x="6" y="4" rx="3"/><path d="M9 4V2h6v2M9 20v2h6v-2"/></svg>',
+                badge: 'PREMIUM'
             },
             {
-                id: "prod-7",
-                nome: "Monitor LG UltraWide 34\" Curvo",
-                categoria: "Monitores",
-                subtitulo: "144Hz • 1ms MBR • HDR10 • IPS sRGB 99%",
+                id: 'prod-7',
+                nome: 'Monitor LG UltraWide 34 Curvo',
+                categoria: 'Monitores',
+                subtitulo: '144Hz • 1ms MBR • HDR10 • IPS sRGB 99%',
                 preco: 2499.00,
-                icone: `<svg class="icon-xl text-warning" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
-                badge: "PRODUTIVIDADE"
+                icone: '<svg class="icon-xl text-warning" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+                badge: 'PRODUTIVIDADE'
             },
             {
-                id: "prod-8",
-                nome: "Teclado Mecânico Keychron Pro RGB",
-                categoria: "Acessórios",
-                subtitulo: "Switches Hot-swap • Bluetooth 5.1 & USB-C",
+                id: 'prod-8',
+                nome: 'Teclado Mecânico Keychron Pro RGB',
+                categoria: 'Acessórios',
+                subtitulo: 'Switches Hot-swap • Bluetooth 5.1 & USB-C',
                 preco: 549.00,
-                icone: `<svg class="icon-xl text-white" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="6" cy="10" r="1"/><circle cx="10" cy="10" r="1"/><circle cx="14" cy="10" r="1"/><circle cx="18" cy="10" r="1"/></svg>`,
-                badge: "ECONÔMICO"
+                icone: '<svg class="icon-xl text-white" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="6" cy="10" r="1"/><circle cx="10" cy="10" r="1"/><circle cx="14" cy="10" r="1"/><circle cx="18" cy="10" r="1"/></svg>',
+                badge: 'ECONÔMICO'
             }
         ];
 
         let produtoAtual = PRODUTOS[0];
         let smsTimerInterval = null;
         let smsTimeLeft = 299;
-        const EXPECTED_CODE = "849204";
+        const EXPECTED_CODE = '849204';
 
         // Preset values da Fraude real (Cell 41 do notebook)
         const fraudValues = {
@@ -967,17 +967,17 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         function formatarTempoMMSS(secs) {
             const m = Math.floor(Math.max(0, secs) / 60);
             const s = Math.max(0, secs) % 60;
-            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
         }
 
         // Renderiza catálogo de produtos da Vitrine
         function renderizarCatalogo() {
             const container = document.getElementById('catalogoProdutosContainer');
+            if (!container) return;
             container.innerHTML = '';
             PRODUTOS.forEach(p => {
                 const col = document.createElement('div');
                 col.className = 'col-sm-6 col-lg-3';
-                const parcelas = Math.round(p.preco / 10);
                 col.innerHTML = `
                     <div class="product-card">
                         <div>
@@ -1011,13 +1011,20 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             produtoAtual = p;
 
             // Atualiza resumo no Checkout
-            document.getElementById('checkoutProdIcon').innerHTML = p.icone;
-            document.getElementById('checkoutProdNome').innerText = p.nome;
-            document.getElementById('checkoutProdSub').innerText = p.subtitulo;
-            document.getElementById('checkoutProdPreco').innerText = formatarBRL(p.preco);
+            const iconEl = document.getElementById('checkoutProdIcon');
+            if (iconEl) iconEl.innerHTML = p.icone;
+            const nomeEl = document.getElementById('checkoutProdNome');
+            if (nomeEl) nomeEl.innerText = p.nome;
+            const subEl = document.getElementById('checkoutProdSub');
+            if (subEl) subEl.innerText = p.subtitulo;
+            const precoEl = document.getElementById('checkoutProdPreco');
+            if (precoEl) precoEl.innerText = formatarBRL(p.preco);
+
             const total = Math.max(10, p.preco - 100.0);
-            document.getElementById('checkoutProdTotal').innerText = formatarBRL(total);
-            document.getElementById('amount_val').value = total.toFixed(2);
+            const totalEl = document.getElementById('checkoutProdTotal');
+            if (totalEl) totalEl.innerText = formatarBRL(total);
+            const amountEl = document.getElementById('amount_val');
+            if (amountEl) amountEl.value = total.toFixed(2);
             currentPCA.Amount = total;
 
             switchTab('checkout');
@@ -1025,13 +1032,19 @@ HTML_DASHBOARD = """<!DOCTYPE html>
 
         // Navegação de Abas
         function switchTab(tabName) {
-            document.getElementById('tab-produtos').style.display = tabName === 'produtos' ? 'block' : 'none';
-            document.getElementById('tab-checkout').style.display = tabName === 'checkout' ? 'block' : 'none';
-            document.getElementById('tab-conclusao').style.display = tabName === 'conclusao' ? 'block' : 'none';
+            const tabP = document.getElementById('tab-produtos');
+            const tabC = document.getElementById('tab-checkout');
+            const tabRes = document.getElementById('tab-conclusao');
+            if (tabP) tabP.style.display = tabName === 'produtos' ? 'block' : 'none';
+            if (tabC) tabC.style.display = tabName === 'checkout' ? 'block' : 'none';
+            if (tabRes) tabRes.style.display = tabName === 'conclusao' ? 'block' : 'none';
 
-            document.getElementById('tab-btn-produtos').classList.toggle('active', tabName === 'produtos');
-            document.getElementById('tab-btn-checkout').classList.toggle('active', tabName === 'checkout');
-            document.getElementById('tab-btn-conclusao').classList.toggle('active', tabName === 'conclusao');
+            const btnP = document.getElementById('tab-btn-produtos');
+            const btnC = document.getElementById('tab-btn-checkout');
+            const btnRes = document.getElementById('tab-btn-conclusao');
+            if (btnP) btnP.classList.toggle('active', tabName === 'produtos');
+            if (btnC) btnC.classList.toggle('active', tabName === 'checkout');
+            if (btnRes) btnRes.classList.toggle('active', tabName === 'conclusao');
 
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -1039,8 +1052,10 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         // Processa o Checkout e vai para a aba 3 (Conclusão)
         async function processarCheckout() {
             const btn = document.getElementById('btnFinalizarCompra');
-            btn.disabled = true;
-            btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Avaliando Risco Antifraude...`;
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Avaliando Risco Antifraude...`;
+            }
 
             currentPCA.Time = parseFloat(document.getElementById('time_val').value) || 50000.0;
             currentPCA.Amount = parseFloat(document.getElementById('amount_val').value) || (produtoAtual.preco - 100.0);
@@ -1067,8 +1082,10 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             } catch (err) {
                 alert("Erro ao consultar o modelo de Machine Learning: " + err);
             } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<svg class="icon-lg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg> <span>Finalizar Compra e Processar Pagamento &rarr;</span>`;
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<svg class="icon-lg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg> <span>Finalizar Compra e Processar Pagamento &rarr;</span>`;
+                }
             }
         }
 
@@ -1109,7 +1126,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                             </div>
                             <div class="d-flex justify-content-between mb-1">
                                 <span class="text-secondary">Algoritmo em Operação:</span>
-                                <span class="text-white">${data.model_name || "BaggingClassifier (RL)"}</span>
+                                <span class="text-white">${data.model_name || 'BaggingClassifier (RL)'}</span>
                             </div>
                             <div class="d-flex justify-content-between mb-1">
                                 <span class="text-secondary">Latência da Inferência:</span>
@@ -1203,7 +1220,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                     smsTimeLeft--;
                     const el = document.getElementById('smsTimerDisplay');
                     if (el) {
-                        el.innerText = `⏱️ Expira em ${formatarTempoMMSS(smsTimeLeft)}`;
+                        el.innerText = '⏱️ Expira em ' + formatarTempoMMSS(smsTimeLeft);
                         if (smsTimeLeft <= 60) el.className = "small font-mono text-danger fw-bold";
                     }
                     if (smsTimeLeft <= 0) {
@@ -1243,7 +1260,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                         </div>
                         <div class="d-flex justify-content-between mb-1">
                             <span class="text-secondary">Modelo Antifraude:</span>
-                            <span class="text-white">${data.model_name || "BaggingClassifier (RL)"}</span>
+                            <span class="text-white">${data.model_name || 'BaggingClassifier (RL)'}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-1">
                             <span class="text-secondary">Tempo de Resposta:</span>
@@ -1319,7 +1336,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                 `;
             } else {
                 // QUALQUER OUTRO CÓDIGO INCORRETO -> FRAUDE IMEDIATA!
-                rejeitarFraudeConclusao(`Tentativa de Fraude Detectada: Código SMS digitado ("${code || 'vazio'}") é inválido e não confere com o token emitido.`);
+                rejeitarFraudeConclusao('Tentativa de Fraude Detectada: Código SMS digitado (' + (code || 'vazio') + ') é inválido e não confere com o token emitido.');
             }
         }
 
@@ -1376,6 +1393,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         // Renderiza inputs das variáveis PCA
         function renderizarPCAInputs() {
             const container = document.getElementById('pcaInputsContainer');
+            if (!container) return;
             container.innerHTML = '';
             for (let i = 1; i <= 28; i++) {
                 const col = document.createElement('div');
@@ -1402,12 +1420,14 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         }
 
         function atualizarHoraEstimada() {
-            const t = parseFloat(document.getElementById('time_val').value) || 0;
+            const timeEl = document.getElementById('time_val');
+            const t = parseFloat(timeEl ? timeEl.value : 0) || 0;
             const hour = Math.floor(t / 3600) % 24;
             const min = Math.floor((t % 3600) / 60);
             const sec = Math.floor(t % 60);
             const pad = (n) => String(n).padStart(2, '0');
-            document.getElementById('time_hora_display').innerText = `Horário: ${pad(hour)}:${pad(min)}:${pad(sec)} (Hora ${hour})`;
+            const el = document.getElementById('time_hora_display');
+            if (el) el.innerText = `Horário: ${pad(hour)}:${pad(min)}:${pad(sec)} (Hora ${hour})`;
         }
 
         function carregarPreset(tipo) {
@@ -1415,18 +1435,23 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             const valorProduto = Math.max(10, produtoAtual.preco - 100.0);
 
             if (tipo === 'fraude') {
-                document.getElementById('chip-fraude').classList.add('active');
+                const chip = document.getElementById('chip-fraude');
+                if (chip) chip.classList.add('active');
                 currentPCA = { ...fraudValues, Amount: valorProduto };
             } else if (tipo === 'normal') {
-                document.getElementById('chip-normal').classList.add('active');
+                const chip = document.getElementById('chip-normal');
+                if (chip) chip.classList.add('active');
                 currentPCA = { ...normalValues, Amount: valorProduto };
             } else if (tipo === 'suspeita') {
-                document.getElementById('chip-suspeita').classList.add('active');
+                const chip = document.getElementById('chip-suspeita');
+                if (chip) chip.classList.add('active');
                 currentPCA = { ...suspeitaValues, Amount: valorProduto };
             }
 
-            document.getElementById('time_val').value = currentPCA.Time;
-            document.getElementById('amount_val').value = currentPCA.Amount;
+            const timeEl = document.getElementById('time_val');
+            if (timeEl) timeEl.value = currentPCA.Time;
+            const amountEl = document.getElementById('amount_val');
+            if (amountEl) amountEl.value = currentPCA.Amount;
             atualizarHoraEstimada();
 
             for (let i = 1; i <= 28; i++) {
@@ -1438,6 +1463,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         function togglePCA() {
             const grid = document.getElementById('pcaGridContainer');
             const status = document.getElementById('pcaStatusText');
+            if (!grid || !status) return;
             if (grid.style.display === 'none') {
                 grid.style.display = 'block';
                 status.innerHTML = 'Recolher &uarr;';
@@ -1450,6 +1476,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         function toggleCrispSecao() {
             const body = document.getElementById('crispSecaoBody');
             const status = document.getElementById('crispSecaoStatus');
+            if (!body || !status) return;
             if (body.style.display === 'none') {
                 body.style.display = 'block';
                 status.innerHTML = 'Recolher Detalhes &uarr;';
@@ -1460,8 +1487,10 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         }
 
         async function executarAuditoria(simulateDrift) {
-            document.getElementById('driftLoading').style.display = 'block';
-            document.getElementById('driftResultadoCard').style.display = 'none';
+            const loadEl = document.getElementById('driftLoading');
+            if (loadEl) loadEl.style.display = 'block';
+            const cardEl = document.getElementById('driftResultadoCard');
+            if (cardEl) cardEl.style.display = 'none';
 
             try {
                 const res = await fetch('/drift?simulate=' + simulateDrift);
@@ -1473,58 +1502,77 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                 const icon = document.getElementById('alertDriftIcon');
 
                 if (data.action_required) {
-                    alertBox.style.background = "rgba(239, 68, 68, 0.15)";
-                    alertBox.style.borderColor = "var(--color-destructive)";
-                    title.className = "h6 mb-1 fw-bold text-danger";
-                    title.innerText = "ALERTA DE DEGRAVAÇÃO POPULACIONAL (DATA DRIFT DETECTADO)";
-                    msg.className = "mb-0 small text-light";
-                    msg.innerText = `${data.recommendation} — (${data.variables_in_drift} de ${data.total_variables_analyzed} variáveis com p < 0.05 / PSI >= 0.20).`;
-                    icon.innerHTML = `<svg class="icon-xl text-danger" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+                    if (alertBox) {
+                        alertBox.style.background = "rgba(239, 68, 68, 0.15)";
+                        alertBox.style.borderColor = "var(--color-destructive)";
+                    }
+                    if (title) {
+                        title.className = "h6 mb-1 fw-bold text-danger";
+                        title.innerText = "ALERTA DE DEGRAVAÇÃO POPULACIONAL (DATA DRIFT DETECTADO)";
+                    }
+                    if (msg) {
+                        msg.className = "mb-0 small text-light";
+                        msg.innerText = `${data.recommendation} — (${data.variables_in_drift} de ${data.total_variables_analyzed} variáveis com p < 0.05 / PSI >= 0.20).`;
+                    }
+                    if (icon) icon.innerHTML = `<svg class="icon-xl text-danger" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
                 } else {
-                    alertBox.style.background = "rgba(34, 197, 94, 0.15)";
-                    alertBox.style.borderColor = "var(--color-accent)";
-                    title.className = "h6 mb-1 fw-bold text-success";
-                    title.innerText = "OPERAÇÃO ESTÁVEL (SEM DERIVA SIGNIFICATIVA)";
-                    msg.className = "mb-0 small text-light";
-                    msg.innerText = `${data.recommendation} — Baseline histórica preservada (${data.variables_in_drift} variáveis com desvio leve).`;
-                    icon.innerHTML = `<svg class="icon-xl text-success" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+                    if (alertBox) {
+                        alertBox.style.background = "rgba(34, 197, 94, 0.15)";
+                        alertBox.style.borderColor = "var(--color-accent)";
+                    }
+                    if (title) {
+                        title.className = "h6 mb-1 fw-bold text-success";
+                        title.innerText = "OPERAÇÃO ESTÁVEL (SEM DERIVA SIGNIFICATIVA)";
+                    }
+                    if (msg) {
+                        msg.className = "mb-0 small text-light";
+                        msg.innerText = `${data.recommendation} — Baseline histórica preservada (${data.variables_in_drift} variáveis com desvio leve).`;
+                    }
+                    if (icon) icon.innerHTML = `<svg class="icon-xl text-success" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
                 }
 
                 const tbody = document.getElementById('tabelaDriftBody');
-                tbody.innerHTML = "";
+                if (tbody) {
+                    tbody.innerHTML = "";
+                    for (const [feat, metrics] of Object.entries(data.detailed_metrics)) {
+                        const tr = document.createElement('tr');
+                        const isDrift = metrics.drift_detected;
+                        const statusBadge = isDrift 
+                            ? `<span class="badge-status badge-danger"><svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> DRIFT</span>` 
+                            : `<span class="badge-status badge-success"><svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> ESTÁVEL</span>`;
 
-                for (const [feat, metrics] of Object.entries(data.detailed_metrics)) {
-                    const tr = document.createElement('tr');
-                    const isDrift = metrics.drift_detected;
-                    const statusBadge = isDrift 
-                        ? `<span class="badge-status badge-danger"><svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> DRIFT</span>` 
-                        : `<span class="badge-status badge-success"><svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> ESTÁVEL</span>`;
-
-                    tr.innerHTML = `
-                        <td><strong>${feat}</strong></td>
-                        <td>${metrics.ks_statistic.toFixed(4)}</td>
-                        <td class="${metrics.p_value < 0.05 ? 'text-danger fw-bold' : ''}">${metrics.p_value.toFixed(5)}</td>
-                        <td class="${metrics.psi >= 0.20 ? 'text-danger fw-bold' : ''}">${metrics.psi.toFixed(4)}</td>
-                        <td>${statusBadge}</td>
-                    `;
-                    tbody.appendChild(tr);
+                        tr.innerHTML = `
+                            <td><strong>${feat}</strong></td>
+                            <td>${metrics.ks_statistic.toFixed(4)}</td>
+                            <td class="${metrics.p_value < 0.05 ? 'text-danger fw-bold' : ''}">${metrics.p_value.toFixed(5)}</td>
+                            <td class="${metrics.psi >= 0.20 ? 'text-danger fw-bold' : ''}">${metrics.psi.toFixed(4)}</td>
+                            <td>${statusBadge}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    }
                 }
 
-                document.getElementById('driftResultadoCard').style.display = 'block';
+                if (cardEl) cardEl.style.display = 'block';
             } catch (err) {
                 alert("Erro ao rodar auditoria de drift: " + err);
             } finally {
-                document.getElementById('driftLoading').style.display = 'none';
+                if (loadEl) loadEl.style.display = 'none';
             }
         }
 
         // Inicialização ao carregar a página
-        document.addEventListener('DOMContentLoaded', () => {
+        function inicializarLoja() {
             renderizarCatalogo();
             renderizarPCAInputs();
             selecionarProduto('prod-1');
             switchTab('produtos');
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', inicializarLoja);
+        } else {
+            inicializarLoja();
+        }
     </script>
 </body>
 </html>
