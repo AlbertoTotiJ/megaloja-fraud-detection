@@ -1103,21 +1103,47 @@ def get_health_json():
         "documentation": "/docs"
     }
 
+def get_requested_path(request: Request) -> str:
+    """Extrai o caminho original da requisição mesmo sob rewrite do Vercel Serverless."""
+    for header in ["x-matched-path", "x-forwarded-uri", "x-invoke-path"]:
+        val = request.headers.get(header)
+        if val:
+            return val.lower()
+    return request.url.path.lower()
+
 # 1. Rota raiz: serve o Dashboard HTML interativo se for navegador, ou JSON se for API
 @app.get("/", response_class=HTMLResponse)
 @app.get("/index", response_class=HTMLResponse)
-@app.get("/api/index.py", response_class=HTMLResponse)
+@app.get("/api/index.py")
 def root_view(request: Request):
+    req_path = get_requested_path(request)
+    
+    if "drift" in req_path:
+        simulate = "simulate=true" in str(request.query_params).lower()
+        if run_drift_analysis:
+            return JSONResponse(content=run_drift_analysis(simulate_drift=simulate))
+        return JSONResponse(content={"status": "Drift monitor indisponível"})
+        
+    if "doc" in req_path:
+        return HTMLResponse(content=SWAGGER_HTML)
+        
+    if "openapi" in req_path:
+        return app.openapi()
+        
+    if "health" in req_path:
+        return JSONResponse(content=get_health_json())
+
     accept = request.headers.get("accept", "")
-    if "text/html" in accept or "*/*" in accept:
-        return HTMLResponse(content=HTML_DASHBOARD)
-    return JSONResponse(content=get_health_json())
+    if "application/json" in accept and "text/html" not in accept:
+        return JSONResponse(content=get_health_json())
+        
+    return HTMLResponse(content=HTML_DASHBOARD)
 
 # 2. Endpoint de Health Check
 @app.get("/health")
 @app.get("/api/health")
 def health_endpoint():
-    return get_health_json()
+    return JSONResponse(content=get_health_json())
 
 # 3. Documentação Swagger
 @app.get("/docs", response_class=HTMLResponse)
@@ -1137,8 +1163,8 @@ def openapi_view():
 @app.get("/api/drift")
 def drift_endpoint(simulate: bool = False):
     if run_drift_analysis:
-        return run_drift_analysis(simulate_drift=simulate)
-    return {"status": "Drift monitor indisponível"}
+        return JSONResponse(content=run_drift_analysis(simulate_drift=simulate))
+    return JSONResponse(content={"status": "Drift monitor indisponível"})
 
 # 5. Endpoint de Inferência Preditiva (POST)
 @app.post("/predict", response_model=PredictionResponse)
@@ -1151,7 +1177,9 @@ def predict_endpoint(transaction: TransactionInput):
 # 6. Roteador Universal Catch-All
 @app.api_route("/{full_path:path}", methods=["GET", "POST", "HEAD", "OPTIONS"])
 async def universal_router(request: Request, full_path: str):
-    clean_path = full_path.strip("/")
+    clean_path = full_path.lower().strip("/")
+    req_path = get_requested_path(request)
+    combined = f"{clean_path} {req_path}"
     
     if request.method == "POST":
         try:
@@ -1160,19 +1188,23 @@ async def universal_router(request: Request, full_path: str):
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
             
-    if "drift" in clean_path:
+    if "drift" in combined:
         simulate = "simulate=true" in str(request.query_params).lower()
         if run_drift_analysis:
-            return run_drift_analysis(simulate_drift=simulate)
-    if "doc" in clean_path:
+            return JSONResponse(content=run_drift_analysis(simulate_drift=simulate))
+        return JSONResponse(content={"status": "Drift monitor indisponível"})
+        
+    if "doc" in combined:
         return HTMLResponse(content=SWAGGER_HTML)
-    if "openapi" in clean_path:
+        
+    if "openapi" in combined:
         return app.openapi()
-    if "health" in clean_path or "json" in clean_path:
+        
+    if "health" in combined:
         return JSONResponse(content=get_health_json())
         
     accept = request.headers.get("accept", "")
-    if "text/html" in accept:
-        return HTMLResponse(content=HTML_DASHBOARD)
+    if "application/json" in accept and "text/html" not in accept:
+        return JSONResponse(content=get_health_json())
         
-    return JSONResponse(content=get_health_json())
+    return HTMLResponse(content=HTML_DASHBOARD)

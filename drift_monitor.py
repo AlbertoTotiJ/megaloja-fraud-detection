@@ -58,43 +58,50 @@ def generate_reference_baseline(n_samples=2000, seed=42):
     data['Hour'] = (data['Time'] / 3600).astype(int) % 24
     for i in range(1, 29):
         data[f'V{i}'] = np.random.normal(0, 1, n_samples)
+        
     return pd.DataFrame(data)
 
-def generate_production_batch(n_samples=500, simulate_drift=False, seed=99):
+def generate_production_batch(n_samples=2000, simulate_drift=False, seed=None):
     """
-    Simula um lote de transações colhidas em produção.
-    Se simulate_drift=True, simula anomalia comportamental (ex: Black Friday ou ataque massivo).
+    Gera lote de transações simuladas em produção.
+    Se simulate_drift=True, injeta desvio significativo em Amount, Hour e PCAs
+    (simulando Black Friday, novos ataques ou inflação).
     """
-    np.random.seed(seed)
-    if simulate_drift:
-        # Mudança drástica no Amount (inflação/Black Friday) e nas componentes de fraude V14/V17
+    if seed:
+        np.random.seed(seed)
+        
+    if not simulate_drift:
+        # Lote típico de produção (sem drift significativo)
         data = {
             'Time': np.random.uniform(0, 172800, n_samples),
-            'Amount': np.random.exponential(350.0, n_samples),  # Média triplicada!
+            'Amount': np.random.exponential(91.0, n_samples),
         }
         data['Hour'] = (data['Time'] / 3600).astype(int) % 24
         for i in range(1, 29):
-            if i in [4, 12, 14, 17]:
-                data[f'V{i}'] = np.random.normal(-2.5, 2.0, n_samples)  # Padrão severamente alterado
-            else:
-                data[f'V{i}'] = np.random.normal(0, 1, n_samples)
+            data[f'V{i}'] = np.random.normal(0.02, 1.02, n_samples)
     else:
-        # Transações normais aderentes à baseline
+        # Cenário de Data Drift e Concept Drift severo (Slide 18)
         data = {
             'Time': np.random.uniform(0, 172800, n_samples),
-            'Amount': np.random.exponential(90.0, n_samples),
+            # Desvio drástico: valores médios muito mais altos (inflação/ticket alto)
+            'Amount': np.random.exponential(350.0, n_samples),
         }
-        data['Hour'] = (data['Time'] / 3600).astype(int) % 24
+        # Desvio no horário: concentração nas madrugadas (ataques automatizados)
+        data['Hour'] = np.random.choice([0, 1, 2, 3, 4, 23], size=n_samples)
         for i in range(1, 29):
-            data[f'V{i}'] = np.random.normal(0, 1, n_samples)
+            if i in [4, 10, 12, 14, 17, 21]:
+                # Injeta desvio severo nas variáveis mais correlacionadas com fraude
+                data[f'V{i}'] = np.random.normal(-1.8, 2.2, n_samples)
+            else:
+                data[f'V{i}'] = np.random.normal(0.4, 1.3, n_samples)
             
     return pd.DataFrame(data)
 
 def run_drift_analysis(simulate_drift=False):
     """Executa a auditoria completa de Data Drift e Concept Drift."""
     print("=" * 65)
-    print("🛡️  MegaLoja S.A. — MLOps Drift Guardian (Etapa 5 CRISP-DM)")
-    print(f"⏰ Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("MegaLoja S.A. — MLOps Drift Guardian (Etapa 5 CRISP-DM)")
+    print(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Modo de Simulação de Drift: {'ATIVADO (Cenário Crítico)' if simulate_drift else 'DESATIVADO (Operação Normal)'}")
     print("=" * 65)
     
@@ -107,7 +114,7 @@ def run_drift_analysis(simulate_drift=False):
     results = {}
     drift_detected_count = 0
     
-    print("\n📊 Análise Estatística por Variável:")
+    print("\nAnálise Estatística por Variável:")
     print("-" * 65)
     print(f"{'Feature':<10} | {'KS Stat':<10} | {'p-value':<10} | {'PSI':<8} | {'Status'}")
     print("-" * 65)
@@ -120,9 +127,9 @@ def run_drift_analysis(simulate_drift=False):
         is_drift = (p_val < 0.05) or (psi_score >= 0.20)
         if is_drift:
             drift_detected_count += 1
-            status_text = "🚨 DRIFT"
+            status_text = "DRIFT"
         else:
-            status_text = "✅ Estável"
+            status_text = "Estável"
             
         results[feat] = {
             "ks_statistic": round(float(ks_stat), 4),
@@ -146,7 +153,7 @@ def run_drift_analysis(simulate_drift=False):
         recommendation = "OPERAÇÃO NORMAL: Distribuições aderentes à baseline de treino. Nenhuma intervenção necessária."
         overall_status = "HEALTHY"
         
-    print(f"\n📋 DIAGNÓSTICO DO MOTOR DE AUDITORIA:")
+    print(f"\nDIAGNÓSTICO DO MOTOR DE AUDITORIA:")
     print(f"Status Geral: {overall_status}")
     print(f"Variáveis em Deriva: {drift_detected_count}/{len(critical_features)} ({drift_ratio*100:.1f}%)")
     print(f"Recomendação MLOps: {recommendation}")
@@ -165,10 +172,19 @@ def run_drift_analysis(simulate_drift=False):
         "detailed_metrics": results
     }
     
-    with open(AUDIT_LOG_FILE, "w", encoding="utf-8") as f:
-        json.dump(audit_report, f, indent=4)
-        
-    print(f"💾 Relatório persistido com sucesso em: {AUDIT_LOG_FILE}\n")
+    try:
+        with open(AUDIT_LOG_FILE, "w", encoding="utf-8") as f:
+            json.dump(audit_report, f, indent=4)
+        print(f"Relatório persistido em: {AUDIT_LOG_FILE}\n")
+    except OSError:
+        try:
+            tmp_path = os.path.join("/tmp", AUDIT_LOG_FILE)
+            with open(tmp_path, "w", encoding="utf-8") as f:
+                json.dump(audit_report, f, indent=4)
+            print(f"Relatório persistido em: {tmp_path}\n")
+        except Exception:
+            pass
+            
     return audit_report
 
 if __name__ == '__main__':
