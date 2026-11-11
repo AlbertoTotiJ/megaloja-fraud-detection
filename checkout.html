@@ -395,13 +395,57 @@
             const [isModalOpen, setIsModalOpen] = useState(false);
             const [smsCode, setSmsCode] = useState("");
             const [smsVerified, setSmsVerified] = useState(false);
+            const [timeLeft, setTimeLeft] = useState(299); // 04:59 (299 segundos)
+            const [rejectionReason, setRejectionReason] = useState("");
+
+            const EXPECTED_SMS_CODE = "849204";
 
             // Estatísticas da sessão
             const [stats, setStats] = useState({ total: 0, approved: 0, challenged: 0, blocked: 0 });
 
+            // Temporizador regressivo ativo do SMS 2FA
+            useEffect(() => {
+                let timerId = null;
+                if (isModalOpen) {
+                    if (timeLeft > 0) {
+                        timerId = setInterval(() => {
+                            setTimeLeft(prev => prev - 1);
+                        }, 1000);
+                    } else if (timeLeft === 0) {
+                        // Tempo expirou: Recusado imediatamente por tempo e política de segurança!
+                        triggerTimeoutRejection();
+                    }
+                }
+                return () => {
+                    if (timerId) clearInterval(timerId);
+                };
+            }, [isModalOpen, timeLeft]);
+
+            // Rejeição por Tempo Expirado (Zero) -> Recusado por Política de Segurança
+            const triggerTimeoutRejection = () => {
+                setIsModalOpen(false);
+                setSmsVerified(false);
+                setRejectionReason("Tempo limite do código SMS expirado (00:00). Tentativa de fraude/inatividade detectada. Transação bloqueada preventivamente pela política de segurança.");
+                setResult(prev => prev ? {
+                    ...prev,
+                    is_fraud: true,
+                    risk_zone: "danger",
+                    fraud_probability: 0.999,
+                    action: "blocked_timeout",
+                    recommendation: "Transação Negada por Política de Segurança"
+                } : null);
+                setStats(prev => ({
+                    ...prev,
+                    challenged: Math.max(0, prev.challenged - 1),
+                    blocked: prev.blocked + 1
+                }));
+            };
+
             const handleFinalizarCompra = async () => {
                 setIsProcessing(true);
                 setSmsVerified(false);
+                setRejectionReason("");
+                setTimeLeft(299);
 
                 // 1. Sorteio ou Seleção da Transação
                 let currentTx;
@@ -473,10 +517,11 @@
                         blocked: prev.blocked + (zone === "danger" ? 1 : 0)
                     }));
 
-                    // Se caiu na zona amarela, abre o modal de SMS automaticamente!
+                    // Se caiu na zona amarela, abre o modal de SMS automaticamente e inicia temporizador!
                     if (zone === "warning") {
                         setIsModalOpen(true);
                         setSmsCode("");
+                        setTimeLeft(299);
                     }
                 } catch (err) {
                     alert("Erro ao consultar a API de Detecção de Fraude: " + err);
@@ -486,17 +531,55 @@
             };
 
             const handleConfirmarSMS = (e) => {
-                e.preventDefault();
-                if (smsCode.trim().length >= 4) {
+                if (e) e.preventDefault();
+                const cleanCode = (smsCode || "").trim();
+
+                // Se o código for exatamente o exibido na tela (849204): APROVA
+                if (cleanCode === EXPECTED_SMS_CODE) {
                     setIsModalOpen(false);
                     setSmsVerified(true);
+                    setRejectionReason("");
+                    setStats(prev => ({
+                        ...prev,
+                        challenged: Math.max(0, prev.challenged - 1),
+                        approved: prev.approved + 1
+                    }));
                 } else {
-                    alert("Por favor, digite o código SMS recebido (ex: 849204).");
+                    // SE QUALQUER CÓDIGO FOR DIFERENTE (OU INCORRETO): CONSIDERA COMO FRAUDE IMEDIATA!
+                    setIsModalOpen(false);
+                    setSmsVerified(false);
+                    const reason = cleanCode 
+                        ? `Tentativa de Fraude Detectada: Código SMS digitado ("${cleanCode}") é inválido e não corresponde ao token de segurança emitido.`
+                        : "Tentativa de Fraude Detectada: Código SMS não foi preenchido corretamente.";
+                    setRejectionReason(reason);
+                    setResult(prev => prev ? {
+                        ...prev,
+                        is_fraud: true,
+                        risk_zone: "danger",
+                        fraud_probability: 0.995,
+                        action: "blocked_invalid_sms",
+                        recommendation: "Transação Negada por Política de Segurança"
+                    } : null);
+                    setStats(prev => ({
+                        ...prev,
+                        challenged: Math.max(0, prev.challenged - 1),
+                        blocked: prev.blocked + 1
+                    }));
                 }
             };
 
             const fillDemoCode = () => {
-                setSmsCode("849204");
+                setSmsCode(EXPECTED_SMS_CODE);
+            };
+
+            const simulateTimeout = () => {
+                setTimeLeft(0);
+            };
+
+            const formatTimer = (totalSeconds) => {
+                const mins = Math.floor(Math.max(0, totalSeconds) / 60);
+                const secs = Math.max(0, totalSeconds) % 60;
+                return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
             };
 
             return (
@@ -757,8 +840,8 @@
                                     {result && !isProcessing && (
                                         <div class="my-auto py-2">
 
-                                            {/* REAÇÃO A: SCORE BAIXO (< 0.50) -> CHECK VERDE: PAGAMENTO APROVADO */}
-                                            {(result.risk_zone === "success" || smsVerified) && (
+                                            {/* REAÇÃO A: SCORE BAIXO (< 0.50) OU 2FA VALIDADO COM SUCESSO -> CHECK VERDE: PAGAMENTO APROVADO */}
+                                            {((result.risk_zone === "success") || (result.risk_zone === "warning" && smsVerified)) && (
                                                 <div class="p-4 rounded-3 text-center border" style={{ background: "rgba(34, 197, 94, 0.08)", borderColor: "var(--color-accent)", boxShadow: "var(--shadow-glow-accent)" }}>
                                                     <div style={{ color: "var(--color-accent)" }}>
                                                         <svg class="icon-xl mb-2" viewBox="0 0 24 24">
@@ -766,11 +849,13 @@
                                                             <polyline points="22 4 12 14.01 9 11.01"/>
                                                         </svg>
                                                     </div>
-                                                    <span class="badge-pill-custom badge-green mb-2">SCORE SEGURO</span>
+                                                    <span class="badge-pill-custom badge-green mb-2">
+                                                        {smsVerified ? "AUTENTICADO COM SUCESSO (2FA)" : "SCORE SEGURO"}
+                                                    </span>
                                                     <h3 class="h4 text-success fw-bold mb-2">Pagamento Aprovado</h3>
                                                     <p class="text-secondary small mb-3">
                                                         {smsVerified 
-                                                            ? "Identidade autenticada com sucesso via SMS 2FA. Pedido #ML-20261110 liberado para expedição!"
+                                                            ? "Identidade autenticada com sucesso via SMS 2FA (Código 849204 confirmado). Pedido #ML-20261110 liberado para expedição!"
                                                             : "Transação autorizada com sucesso pelo emissor do cartão. Pedido #ML-20261110 confirmado para envio imediato."}
                                                     </p>
 
@@ -837,7 +922,7 @@
                                                 </div>
                                             )}
 
-                                            {/* REAÇÃO C: FRAUDE CONFIRMADA (SCORE ALTO >= 0.75) -> AVISO VERMELHO: TRANSAÇÃO NEGADA */}
+                                            {/* REAÇÃO C: FRAUDE CONFIRMADA (SCORE ALTO >= 0.75 OU FALHA/TIMEOUT NO 2FA) -> AVISO VERMELHO */}
                                             {result.risk_zone === "danger" && (
                                                 <div class="p-4 rounded-3 text-center border" style={{ background: "rgba(239, 68, 68, 0.08)", borderColor: "var(--color-destructive)", boxShadow: "var(--shadow-glow-danger)" }}>
                                                     <div style={{ color: "var(--color-destructive)" }}>
@@ -847,10 +932,16 @@
                                                             <line x1="12" y1="16" x2="12.01" y2="16"/>
                                                         </svg>
                                                     </div>
-                                                    <span class="badge-pill-custom badge-red mb-2">BLOQUEIO PREVENTIVO</span>
+                                                    <span class="badge-pill-custom badge-red mb-2">
+                                                        {result.action === "blocked_timeout" 
+                                                            ? "TEMPO LIMITE ESGOTADO (TIMEOUT)" 
+                                                            : result.action === "blocked_invalid_sms" 
+                                                                ? "TENTATIVA DE FRAUDE 2FA" 
+                                                                : "BLOQUEIO PREVENTIVO"}
+                                                    </span>
                                                     <h3 class="h4 text-danger fw-bold mb-2">Transação Negada por Política de Segurança</h3>
                                                     <p class="text-secondary small mb-3">
-                                                        O motor de Machine Learning identificou desvios severos compatíveis com clonagem e ataque automatizado de cartões de crédito. A transação foi barrada em milissegundos.
+                                                        {rejectionReason || "O motor de Machine Learning identificou desvios severos compatíveis com clonagem e ataque automatizado de cartões de crédito. A transação foi barrada em milissegundos."}
                                                     </p>
 
                                                     <div class="p-3 rounded mb-3 text-start font-mono small" style={{ background: "var(--color-primary)", border: "1px solid var(--color-border)" }}>
@@ -860,7 +951,13 @@
                                                         </div>
                                                         <div class="d-flex justify-content-between mb-1">
                                                             <span class="text-secondary">Classificação de Risco:</span>
-                                                            <span class="text-danger">CRÍTICO (&ge; 75%)</span>
+                                                            <span class="text-danger">
+                                                                {result.action === "blocked_timeout" 
+                                                                    ? "CRÍTICO (Tempo SMS Expirado)" 
+                                                                    : result.action === "blocked_invalid_sms" 
+                                                                        ? "CRÍTICO (Código SMS Incorreto)" 
+                                                                        : "CRÍTICO (≥ 75%)"}
+                                                            </span>
                                                         </div>
                                                         <div class="d-flex justify-content-between mb-1">
                                                             <span class="text-secondary">Amostra Injetada:</span>
@@ -868,7 +965,13 @@
                                                         </div>
                                                         <div class="d-flex justify-content-between">
                                                             <span class="text-secondary">Decisão Automatizada:</span>
-                                                            <span class="text-white">Bloqueio Imediato &bull; Alerta SIEM</span>
+                                                            <span class="text-white">
+                                                                {result.action === "blocked_timeout" 
+                                                                    ? "Bloqueio por Timeout • Risco de Fraude" 
+                                                                    : result.action === "blocked_invalid_sms" 
+                                                                        ? "Bloqueio Imediato • Código SMS Inválido" 
+                                                                        : "Bloqueio Imediato • Alerta SIEM"}
+                                                            </span>
                                                         </div>
                                                     </div>
 
@@ -892,7 +995,7 @@
 
                     </main>
 
-                    {/* MODAL DA ZONA AMARELA: DESAFIO SMS 2FA */}
+                    {/* MODAL DA ZONA AMARELA: DESAFIO SMS 2FA COM TEMPORIZADOR E VALIDAÇÃO DE FRAUDE */}
                     {isModalOpen && (
                         <div class="modal-overlay" onClick={() => setIsModalOpen(false)}>
                             <div class="modal-card" onClick={(e) => e.stopPropagation()}>
@@ -905,9 +1008,12 @@
                                     </div>
                                     <span class="badge-pill-custom badge-yellow mb-2">AUTENTICAÇÃO EM 2 ETAPAS (2FA)</span>
                                     <h3 class="h5 text-white fw-bold mb-1">Atenção: Insira o código SMS enviado ao seu celular</h3>
-                                    <p class="text-secondary small">
+                                    <p class="text-secondary small mb-1">
                                         Identificamos um padrão de compra atípico. Enviamos um código de segurança de 6 dígitos para o seu telefone cadastrado com final <strong>(11) 98***-**42</strong>.
                                     </p>
+                                    <div class="text-warning small font-mono mt-1" style={{ fontSize: "0.78rem" }}>
+                                        ⚠️ Qualquer código diferente do emitido ou fim do tempo bloqueará a transação como fraude.
+                                    </div>
                                 </div>
 
                                 <form onSubmit={handleConfirmarSMS}>
@@ -924,11 +1030,22 @@
                                         />
                                     </div>
 
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
                                         <button type="button" class="btn btn-link text-info text-decoration-none small p-0 font-mono" onClick={fillDemoCode}>
                                             Preencher Código de Teste (849204)
                                         </button>
-                                        <span class="text-secondary small font-mono">Expira em 04:59</span>
+                                        <span class={`small font-mono ${timeLeft <= 60 ? 'text-danger fw-bold' : 'text-secondary'}`}>
+                                            <svg class="icon me-1" viewBox="0 0 24 24" style={{ width: "14px", height: "14px", verticalAlign: "-2px" }}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                            Expira em {formatTimer(timeLeft)}
+                                        </span>
+                                    </div>
+
+                                    {/* Teste Rápido de Timeout para a Avaliação */}
+                                    <div class="d-flex justify-content-between align-items-center mb-3 p-2 rounded" style={{ background: "rgba(239, 68, 68, 0.08)", border: "1px dashed rgba(239, 68, 68, 0.3)" }}>
+                                        <span class="text-secondary small font-mono" style={{ fontSize: "0.76rem" }}>Teste de Avaliação do Professor:</span>
+                                        <button type="button" class="btn btn-sm btn-outline-danger font-mono py-0 px-2" style={{ fontSize: "0.75rem" }} onClick={simulateTimeout}>
+                                            ⏱️ Simular Timeout (0s)
+                                        </button>
                                     </div>
 
                                     <div class="d-flex gap-2">
