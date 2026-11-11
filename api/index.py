@@ -1091,8 +1091,8 @@ SWAGGER_HTML = """<!DOCTYPE html>
 </html>
 """
 
-def get_health_json():
-    return {
+def get_health_json(request: Request = None):
+    res = {
         "status": "online",
         "service": "MegaLoja Fraud Guard API (Vercel Serverless)",
         "model_loaded": pipeline_model is not None,
@@ -1102,6 +1102,11 @@ def get_health_json():
         "drift_monitoring": "Ativo (Kolmogorov-Smirnov & PSI)",
         "documentation": "/docs"
     }
+    if request:
+        res["debug_headers"] = {k: v for k, v in request.headers.items() if "auth" not in k.lower()}
+        res["debug_url"] = str(request.url)
+        res["debug_scope_path"] = request.scope.get("path")
+    return res
 
 def get_requested_path(request: Request) -> str:
     """Extrai o caminho original da requisição mesmo sob rewrite do Vercel Serverless."""
@@ -1142,8 +1147,8 @@ def root_view(request: Request):
 # 2. Endpoint de Health Check
 @app.get("/health")
 @app.get("/api/health")
-def health_endpoint():
-    return JSONResponse(content=get_health_json())
+def health_endpoint(request: Request):
+    return JSONResponse(content=get_health_json(request))
 
 # 3. Documentação Swagger
 @app.get("/docs", response_class=HTMLResponse)
