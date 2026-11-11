@@ -96,6 +96,8 @@ class PredictionResponse(BaseModel):
     is_fraud: bool
     fraud_probability: float
     recommendation: str
+    risk_zone: str = "success"
+    action_type: str = "approved"
     model_name: str
     status_code: int
 
@@ -116,16 +118,24 @@ def run_inference(data_dict: dict):
     is_fraud = prob_fraud >= threshold
     
     if prob_fraud >= 0.75:
-        recommendation = "BLOQUEIO IMEDIATO: Risco Crítico de Fraude"
+        recommendation = "Transação Negada por Política de Segurança"
+        risk_zone = "danger"
+        action_type = "blocked"
     elif prob_fraud >= threshold:
-        recommendation = "DESAFIO DE SEGURANÇA: Solicitar Verificação 2FA / Biometria"
+        recommendation = "Atenção: Insira o código SMS enviado ao seu celular"
+        risk_zone = "warning"
+        action_type = "challenge_sms_2fa"
     else:
-        recommendation = "APROVADA: Transação com comportamento típico"
+        recommendation = "Pagamento Aprovado"
+        risk_zone = "success"
+        action_type = "approved"
         
     return {
         "is_fraud": is_fraud,
         "fraud_probability": round(prob_fraud, 4),
         "recommendation": recommendation,
+        "risk_zone": risk_zone,
+        "action_type": action_type,
         "model_name": metadata.get("model_name", "BaggingClassifier"),
         "status_code": 200
     }
@@ -473,6 +483,11 @@ HTML_DASHBOARD = """<!DOCTYPE html>
 
                 <div class="d-flex flex-column align-items-end text-end">
                     <div class="d-flex gap-2 mb-1">
+                        <a href="/checkout" class="badge-status badge-success text-decoration-none" title="Abrir Vitrine E-commerce em React">
+                            <!-- Shopping Bag Icon -->
+                            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                            Vitrine Checkout React &rarr;
+                        </a>
                         <span class="badge-status badge-info">
                             <!-- Cloud Icon -->
                             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
@@ -788,6 +803,11 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         <!-- Footer -->
         <footer class="mt-4 pt-3 border-top text-center text-secondary small" style="border-color: var(--color-border) !important;">
             <div class="d-flex flex-wrap justify-content-center gap-4 mb-2">
+                <a href="/checkout" class="text-success text-decoration-none d-inline-flex align-items-center gap-1 hover-white fw-bold">
+                    <!-- Shopping Bag Icon -->
+                    <svg class="icon text-success" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    Vitrine Checkout React (/checkout)
+                </a>
                 <a href="/docs" target="_blank" class="text-secondary text-decoration-none d-inline-flex align-items-center gap-1 hover-white">
                     <!-- Book Open Icon -->
                     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
@@ -1091,6 +1111,24 @@ SWAGGER_HTML = """<!DOCTYPE html>
 </html>
 """
 
+CHECKOUT_PATH = os.path.join(BASE_DIR, "checkout.html")
+if not os.path.exists(CHECKOUT_PATH):
+    CHECKOUT_PATH = os.path.join(os.path.dirname(BASE_DIR), "checkout.html")
+
+CHECKOUT_HTML = ""
+if os.path.exists(CHECKOUT_PATH):
+    with open(CHECKOUT_PATH, "r", encoding="utf-8") as f:
+        CHECKOUT_HTML = f.read()
+
+SAMPLES_PATH = os.path.join(BASE_DIR, "transactions_sample.json")
+if not os.path.exists(SAMPLES_PATH):
+    SAMPLES_PATH = os.path.join(os.path.dirname(BASE_DIR), "transactions_sample.json")
+
+SAMPLE_TRANSACTIONS = []
+if os.path.exists(SAMPLES_PATH):
+    with open(SAMPLES_PATH, "r", encoding="utf-8") as f:
+        SAMPLE_TRANSACTIONS = json.load(f)
+
 def get_health_json(request: Request = None):
     res = {
         "status": "online",
@@ -1100,6 +1138,8 @@ def get_health_json(request: Request = None):
         "algorithm": metadata.get("algorithm", "BaggingClassifier (base_estimator=LogisticRegression)"),
         "model_version": metadata.get("version", "1.2.0"),
         "drift_monitoring": "Ativo (Kolmogorov-Smirnov & PSI)",
+        "checkout_vitrine": "/checkout",
+        "sample_transactions": "/samples",
         "documentation": "/docs"
     }
     if request:
@@ -1126,6 +1166,12 @@ def get_requested_path(request: Request) -> str:
 def root_view(request: Request):
     req_path = get_requested_path(request)
     
+    if "checkout" in req_path:
+        return HTMLResponse(content=CHECKOUT_HTML)
+        
+    if "sample" in req_path:
+        return JSONResponse(content=SAMPLE_TRANSACTIONS)
+    
     if "drift" in req_path:
         simulate = "simulate=true" in str(request.query_params).lower()
         if run_drift_analysis:
@@ -1147,13 +1193,27 @@ def root_view(request: Request):
         
     return HTMLResponse(content=HTML_DASHBOARD)
 
-# 2. Endpoint de Health Check
+# 2. Endpoint da Vitrine de Checkout React
+@app.get("/checkout", response_class=HTMLResponse)
+@app.get("/api/checkout", response_class=HTMLResponse)
+@app.get("/api/index.py/checkout", response_class=HTMLResponse)
+def checkout_view():
+    return HTMLResponse(content=CHECKOUT_HTML)
+
+# 3. Endpoint de Amostras de Transações (15 amostras: 10 normais, 5 fraudes)
+@app.get("/samples")
+@app.get("/api/samples")
+@app.get("/api/index.py/samples")
+def samples_view():
+    return JSONResponse(content=SAMPLE_TRANSACTIONS)
+
+# 4. Endpoint de Health Check
 @app.get("/health")
 @app.get("/api/health")
 def health_endpoint(request: Request):
     return JSONResponse(content=get_health_json(request))
 
-# 3. Documentação Swagger
+# 5. Documentação Swagger
 @app.get("/docs", response_class=HTMLResponse)
 @app.get("/api/docs", response_class=HTMLResponse)
 @app.get("/api/index.py/docs", response_class=HTMLResponse)
@@ -1166,7 +1226,7 @@ def docs_view():
 def openapi_view():
     return app.openapi()
 
-# 4. Endpoint de Auditoria de Drift e Degradação (Etapa 5 - Slide 18)
+# 6. Endpoint de Auditoria de Drift e Degradação (Etapa 5 - Slide 18)
 @app.get("/drift")
 @app.get("/api/drift")
 def drift_endpoint(simulate: bool = False):
@@ -1174,7 +1234,7 @@ def drift_endpoint(simulate: bool = False):
         return JSONResponse(content=run_drift_analysis(simulate_drift=simulate))
     return JSONResponse(content={"status": "Drift monitor indisponível"})
 
-# 5. Endpoint de Inferência Preditiva (POST)
+# 7. Endpoint de Inferência Preditiva (POST)
 @app.post("/predict", response_model=PredictionResponse)
 @app.post("/api/predict", response_model=PredictionResponse)
 @app.post("/api/index.py/predict", response_model=PredictionResponse)
@@ -1182,7 +1242,7 @@ def predict_endpoint(transaction: TransactionInput):
     res = run_inference(transaction.model_dump())
     return PredictionResponse(**res)
 
-# 6. Roteador Universal Catch-All
+# 8. Roteador Universal Catch-All
 @app.api_route("/{full_path:path}", methods=["GET", "POST", "HEAD", "OPTIONS"])
 async def universal_router(request: Request, full_path: str):
     clean_path = full_path.lower().strip("/")
@@ -1196,6 +1256,12 @@ async def universal_router(request: Request, full_path: str):
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
             
+    if "checkout" in combined:
+        return HTMLResponse(content=CHECKOUT_HTML)
+        
+    if "sample" in combined:
+        return JSONResponse(content=SAMPLE_TRANSACTIONS)
+
     if "drift" in combined:
         simulate = "simulate=true" in str(request.query_params).lower()
         if run_drift_analysis:
@@ -1209,10 +1275,10 @@ async def universal_router(request: Request, full_path: str):
         return app.openapi()
         
     if "health" in combined:
-        return JSONResponse(content=get_health_json())
+        return JSONResponse(content=get_health_json(request))
         
     accept = request.headers.get("accept", "")
     if "application/json" in accept and "text/html" not in accept:
-        return JSONResponse(content=get_health_json())
+        return JSONResponse(content=get_health_json(request))
         
     return HTMLResponse(content=HTML_DASHBOARD)

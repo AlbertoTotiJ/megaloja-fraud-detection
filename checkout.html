@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MegaLoja Store — Checkout Seguro AntiFraude</title>
+    <!-- Google Fonts: Fira Code & Fira Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- React 18 & Babel Standalone -->
+    <script crossorigin src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        :root {
+            --color-primary: #0F172A;
+            --color-secondary: #1E293B;
+            --color-accent: #22C55E;
+            --color-background: #020617;
+            --color-foreground: #F8FAFC;
+            --color-card: #0E1223;
+            --color-muted: #1A1E2F;
+            --color-muted-foreground: #94A3B8;
+            --color-border: #334155;
+            --color-destructive: #EF4444;
+            --color-warning: #F59E0B;
+            --color-info: #38BDF8;
+            --shadow-glow-accent: 0 0 20px rgba(34, 197, 94, 0.3);
+            --shadow-glow-danger: 0 0 20px rgba(239, 68, 68, 0.4);
+            --shadow-glow-warning: 0 0 20px rgba(245, 158, 11, 0.35);
+        }
+
+        body {
+            background-color: var(--color-background);
+            color: var(--color-foreground);
+            font-family: 'Fira Sans', -apple-system, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4, h5, h6, .font-mono, .badge-mono {
+            font-family: 'Fira Code', monospace;
+            letter-spacing: -0.02em;
+        }
+
+        /* Ambient Glow Header */
+        .store-header {
+            background: radial-gradient(circle at 50% -30%, rgba(34, 197, 94, 0.15) 0%, rgba(2, 6, 23, 0) 70%);
+            border-bottom: 1px solid var(--color-border);
+            padding: 1.2rem 1rem;
+        }
+
+        .card-custom {
+            background: var(--color-card);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: border-color 200ms ease, box-shadow 200ms ease;
+        }
+        .card-custom:hover {
+            border-color: #475569;
+        }
+
+        .btn-cta {
+            background: var(--color-accent);
+            color: #04130a;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 24px;
+            cursor: pointer;
+            transition: all 200ms ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.1rem;
+            font-family: 'Fira Sans', sans-serif;
+        }
+        .btn-cta:hover:not(:disabled) {
+            background: #16a34a;
+            box-shadow: var(--shadow-glow-accent);
+            transform: translateY(-2px);
+        }
+        .btn-cta:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary-custom {
+            background: var(--color-secondary);
+            color: var(--color-foreground);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 200ms ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-secondary-custom:hover {
+            background: #283548;
+            border-color: var(--color-info);
+            color: #fff;
+        }
+
+        /* SVG Icons */
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+        }
+        .icon-lg {
+            width: 28px;
+            height: 28px;
+        }
+        .icon-xl {
+            width: 54px;
+            height: 54px;
+        }
+
+        /* Badges */
+        .badge-pill-custom {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: 'Fira Code', monospace;
+        }
+        .badge-green { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .badge-yellow { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-red { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-blue { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+
+        /* Modal Backdrop */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1050;
+            padding: 1rem;
+            animation: fadeIn 200ms ease;
+        }
+        .modal-card {
+            background: #0E1223;
+            border: 2px solid var(--color-warning);
+            border-radius: 16px;
+            max-width: 480px;
+            width: 100%;
+            padding: 2rem;
+            box-shadow: var(--shadow-glow-warning);
+            animation: slideUp 250ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Product image simulated canvas */
+        .product-img-box {
+            background: linear-gradient(135deg, #111827 0%, #030712 100%);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px;
+        }
+
+        /* Pulse animation */
+        .pulse-live {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px #22c55e;
+            animation: pulseDot 2s infinite;
+        }
+        @keyframes pulseDot {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.8; }
+        }
+
+        /* Form input custom */
+        .form-select-custom, .form-input-custom {
+            background: var(--color-primary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            color: var(--color-foreground);
+            font-family: 'Fira Code', monospace;
+            padding: 8px 12px;
+            width: 100%;
+        }
+        .form-select-custom:focus, .form-input-custom:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Injeção de Dados: 15 Amostras do Dataset (10 Normais e 5 Fraudes)
+        const SAMPLE_TRANSACTIONS = [
+            // 7 Compras Normais (Score Baixo < 0.50 -> Check Verde)
+            {
+                id: "TX-NORM-001",
+                description: "Compra Normal #1: Pagamento habitual em horário comercial",
+                expected_category: "normal",
+                category_label: "Compra Legítima",
+                Time: 45000.0, Amount: 89.90,
+                V16: 1.6, V25: 1.4, V7: 1.3, V26: 1.1, V12: 1.2, V23: 0.9,
+                V15: -0.6, V5: -0.5, V8: -0.6, V21: -0.5
+            },
+            {
+                id: "TX-NORM-002",
+                description: "Compra Normal #2: E-commerce recorrente com cliente VIP",
+                expected_category: "normal",
+                category_label: "Compra Legítima",
+                Time: 54000.0, Amount: 149.00,
+                V16: 1.8, V25: 1.6, V7: 1.4, V26: 1.2, V12: 1.3, V23: 1.0,
+                V15: -0.7, V5: -0.6, V8: -0.7, V21: -0.6
+            },
+            {
+                id: "TX-NORM-003",
+                description: "Compra Normal #3: Livro técnico parcelado sem juros",
+                expected_category: "normal",
+                category_label: "Compra Legítima",
+                Time: 62000.0, Amount: 79.50,
+                V16: 1.5, V25: 1.3, V7: 1.1, V26: 1.0, V12: 1.1, V23: 0.8,
+                V15: -0.5, V5: -0.4, V8: -0.5, V21: -0.4
+            },
+            {
+                id: "TX-NORM-004",
+                description: "Compra Normal #4: Periféricos de informática com entrega expressa",
+                expected_category: "normal",
+                category_label: "Compra Legítima",
+                Time: 39000.0, Amount: 249.90,
+                V16: 1.4, V25: 1.2, V7: 1.0, V26: 0.9, V12: 1.0, V23: 0.7,
+                V15: -0.4, V5: -0.3, V8: -0.4, V21: -0.3
+            },
+            {
+                id: "TX-NORM-005",
+                description: "Compra Normal #5: Acessórios para celular na MegaLoja",
+                expected_category: "normal",
+                category_label: "Compra Legítima",
+                Time: 48000.0, Amount: 45.00,
+                V16: 1.7, V25: 1.5, V7: 1.3, V26: 1.1, V12: 1.2, V23: 0.9,
+                V15: -0.6, V5: -0.5, V8: -0.6, V21: -0.5
+            },
+            {
+                id: "TX-NORM-006",
+                description: "Compra Normal #6: Monitor gamer com frete grátis",
+                expected_category: "normal",
+                category_label: "Compra Legítima",
+                Time: 51000.0, Amount: 350.00,
+                V16: 1.5, V25: 1.3, V7: 1.2, V26: 1.0, V12: 1.1, V23: 0.8,
+                V15: -0.5, V5: -0.4, V8: -0.5, V21: -0.4
+            },
+            {
+                id: "TX-NORM-007",
+                description: "Compra Normal #7: Fone Bluetooth com pagamento à vista",
+                expected_category: "normal",
+                category_label: "Compra Legítima",
+                Time: 58000.0, Amount: 199.90,
+                V16: 1.9, V25: 1.7, V7: 1.5, V26: 1.3, V12: 1.4, V23: 1.1,
+                V15: -0.8, V5: -0.7, V8: -0.8, V21: -0.7
+            },
+            // 3 Compras na Zona Amarela (Score 0.50 a 0.74 -> Modal SMS 2FA)
+            {
+                id: "TX-NORM-008",
+                description: "Zona Amarela #1: Compra noturna de celular novo (Requer SMS 2FA)",
+                expected_category: "yellow_zone",
+                category_label: "Verificação 2FA (SMS)",
+                Time: 65000.0, Amount: 380.00,
+                V16: 0.78, V25: 0.65, V7: 0.45, V26: 0.40, V12: 0.45, V23: 0.30,
+                V15: -0.10, V5: -0.05, V8: -0.10, V21: -0.05
+            },
+            {
+                id: "TX-NORM-009",
+                description: "Zona Amarela #2: Novo endereço de entrega cadastrado (Requer SMS 2FA)",
+                expected_category: "yellow_zone",
+                category_label: "Verificação 2FA (SMS)",
+                Time: 65000.0, Amount: 410.00,
+                V16: 0.76, V25: 0.65, V7: 0.45, V26: 0.40, V12: 0.45, V23: 0.30,
+                V15: -0.10, V5: -0.05, V8: -0.10, V21: -0.05
+            },
+            {
+                id: "TX-NORM-010",
+                description: "Zona Amarela #3: Transação acima da média habitual (Requer SMS 2FA)",
+                expected_category: "yellow_zone",
+                category_label: "Verificação 2FA (SMS)",
+                Time: 65000.0, Amount: 450.00,
+                V16: 0.75, V25: 0.65, V7: 0.45, V26: 0.40, V12: 0.45, V23: 0.30,
+                V15: -0.10, V5: -0.05, V8: -0.10, V21: -0.05
+            },
+            // 5 Fraudes Reais (Score >= 0.75 -> Aviso Vermelho: Transação Negada)
+            {
+                id: "TX-FRAUD-001",
+                description: "Fraude #1: Clonagem Noturna Confirmada (Amostra Cell 41)",
+                expected_category: "fraud",
+                category_label: "Fraude Crítica",
+                Time: 406.0, Amount: 149.62,
+                V1: -2.31, V2: 1.95, V3: -1.60, V4: 3.99, V5: -0.52, V6: -1.42, V7: -2.53, V8: 1.39,
+                V9: -2.77, V10: -2.77, V11: 3.20, V12: -2.89, V13: -0.59, V14: -4.28, V15: 0.38,
+                V16: -1.14, V17: -2.83, V18: -0.01, V19: 0.41, V20: 0.12, V21: 0.51, V22: -0.03,
+                V23: -0.46, V24: 0.32, V25: 0.04, V26: 0.17, V27: 0.26, V28: -0.14
+            },
+            {
+                id: "TX-FRAUD-002",
+                description: "Fraude #2: Compra Abusiva com Cartão Furtado (03:15h)",
+                expected_category: "fraud",
+                category_label: "Fraude Crítica",
+                Time: 11800.0, Amount: 4899.00,
+                V1: -3.05, V2: 2.50, "V3": -2.90, V4: 4.10, V5: -1.20, V6: -1.80, V7: -3.10, V8: 1.80,
+                V9: -3.20, V10: -3.50, V11: 3.80, V12: -3.90, V13: -0.80, V14: -5.10, V15: 0.40,
+                V16: -1.80, V17: -3.90, V18: -0.20, V19: 0.60, V20: 0.40, V21: 0.80, V22: -0.10,
+                V23: -0.50, V24: 0.20, V25: 0.10, V26: 0.30, V27: 0.40, V28: -0.20
+            },
+            {
+                id: "TX-FRAUD-003",
+                description: "Fraude #3: Injeção de Cartão Bloqueado no Emissor",
+                expected_category: "fraud",
+                category_label: "Fraude Crítica",
+                Time: 472.0, Amount: 529.00,
+                V1: -2.80, V2: 2.10, V3: -2.20, V4: 3.75, V5: -0.90, V6: -1.60, V7: -2.80, V8: 1.50,
+                V9: -2.95, V10: -3.10, V11: 3.40, V12: -3.20, V13: -0.70, V14: -4.60, V15: 0.25,
+                V16: -1.40, V17: -3.20, V18: -0.10, V19: 0.50, V20: 0.25, V21: 0.65, V22: -0.05,
+                V23: -0.48, V24: 0.25, V25: 0.08, V26: 0.22, V27: 0.32, V28: -0.18
+            },
+            {
+                id: "TX-FRAUD-004",
+                description: "Fraude #4: Ataque Automatizado de Teste de Cartões (Botnet)",
+                expected_category: "fraud",
+                category_label: "Fraude Crítica",
+                Time: 8500.0, Amount: 1290.00,
+                V1: -2.55, V2: 2.05, V3: -1.95, V4: 3.85, V5: -0.75, V6: -1.50, V7: -2.65, V8: 1.45,
+                V9: -2.85, V10: -2.95, V11: 3.30, V12: -3.05, V13: -0.65, V14: -4.45, V15: 0.32,
+                V16: -1.25, V17: -3.05, V18: -0.05, V19: 0.45, V20: 0.18, V21: 0.58, V22: -0.04,
+                V23: -0.47, V24: 0.28, V25: 0.06, V26: 0.19, V27: 0.29, V28: -0.16
+            },
+            {
+                id: "TX-FRAUD-005",
+                description: "Fraude #5: Golpe de Alto Valor via Proxy Anônimo",
+                expected_category: "fraud",
+                category_label: "Fraude Crítica",
+                Time: 24000.0, Amount: 8999.00,
+                V1: -3.40, V2: 2.80, V3: -3.10, V4: 4.50, V5: -1.50, V6: -2.00, V7: -3.40, V8: 2.00,
+                V9: -3.50, V10: -3.80, V11: 4.10, V12: -4.20, V13: -0.90, V14: -5.50, V15: 0.45,
+                V16: -2.00, V17: -4.20, V18: -0.30, V19: 0.70, V20: 0.50, V21: 0.90, V22: -0.15,
+                V23: -0.55, V24: 0.15, V25: 0.12, V26: 0.35, V27: 0.45, V28: -0.25
+            }
+        ];
+
+        function App() {
+            const [mode, setMode] = useState("random"); // "random" | "manual"
+            const [selectedId, setSelectedId] = useState(SAMPLE_TRANSACTIONS[0].id);
+            const [activeTx, setActiveTx] = useState(SAMPLE_TRANSACTIONS[0]);
+            const [isProcessing, setIsProcessing] = useState(false);
+            const [result, setResult] = useState(null);
+            const [showPayload, setShowPayload] = useState(false);
+            
+            // Modal SMS 2FA (Zona Amarela)
+            const [isModalOpen, setIsModalOpen] = useState(false);
+            const [smsCode, setSmsCode] = useState("");
+            const [smsVerified, setSmsVerified] = useState(false);
+
+            // Estatísticas da sessão
+            const [stats, setStats] = useState({ total: 0, approved: 0, challenged: 0, blocked: 0 });
+
+            const handleFinalizarCompra = async () => {
+                setIsProcessing(true);
+                setSmsVerified(false);
+
+                // 1. Sorteio ou Seleção da Transação
+                let currentTx;
+                if (mode === "random") {
+                    const randomIndex = Math.floor(Math.random() * SAMPLE_TRANSACTIONS.length);
+                    currentTx = SAMPLE_TRANSACTIONS[randomIndex];
+                    setSelectedId(currentTx.id);
+                } else {
+                    currentTx = SAMPLE_TRANSACTIONS.find(t => t.id === selectedId) || SAMPLE_TRANSACTIONS[0];
+                }
+                setActiveTx(currentTx);
+
+                // 2. Prepara o Payload completo (Time, Amount, V1 a V28)
+                const payload = {
+                    Time: currentTx.Time,
+                    Amount: currentTx.Amount
+                };
+                for (let i = 1; i <= 28; i++) {
+                    payload[`V${i}`] = currentTx[`V${i}`] !== undefined ? currentTx[`V${i}`] : 0.0;
+                }
+
+                // 3. Envia para o Backend FastAPI (/predict)
+                const t0 = performance.now();
+                try {
+                    const response = await fetch("/predict", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await response.json();
+                    const t1 = performance.now();
+                    const latency = Math.round(t1 - t0);
+
+                    const prob = data.fraud_probability;
+                    let zone = "success";
+                    let action = "approved";
+
+                    // Regra das 3 Reações de Negócio solicitadas:
+                    if (prob >= 0.75) {
+                        zone = "danger";
+                        action = "blocked";
+                    } else if (prob >= 0.50) {
+                        zone = "warning";
+                        action = "challenge_sms_2fa";
+                    } else {
+                        zone = "success";
+                        action = "approved";
+                    }
+
+                    const evaluation = {
+                        txId: currentTx.id,
+                        description: currentTx.description,
+                        is_fraud: data.is_fraud,
+                        fraud_probability: prob,
+                        risk_zone: zone,
+                        action: action,
+                        recommendation: data.recommendation,
+                        model_name: data.model_name || "BaggingClassifier (RL)",
+                        latency: latency
+                    };
+
+                    setResult(evaluation);
+
+                    // Atualiza estatísticas
+                    setStats(prev => ({
+                        total: prev.total + 1,
+                        approved: prev.approved + (zone === "success" ? 1 : 0),
+                        challenged: prev.challenged + (zone === "warning" ? 1 : 0),
+                        blocked: prev.blocked + (zone === "danger" ? 1 : 0)
+                    }));
+
+                    // Se caiu na zona amarela, abre o modal de SMS automaticamente!
+                    if (zone === "warning") {
+                        setIsModalOpen(true);
+                        setSmsCode("");
+                    }
+                } catch (err) {
+                    alert("Erro ao consultar a API de Detecção de Fraude: " + err);
+                } finally {
+                    setIsProcessing(false);
+                }
+            };
+
+            const handleConfirmarSMS = (e) => {
+                e.preventDefault();
+                if (smsCode.trim().length >= 4) {
+                    setIsModalOpen(false);
+                    setSmsVerified(true);
+                } else {
+                    alert("Por favor, digite o código SMS recebido (ex: 849204).");
+                }
+            };
+
+            const fillDemoCode = () => {
+                setSmsCode("849204");
+            };
+
+            return (
+                <div>
+                    {/* Header da Loja Virtual */}
+                    <header class="store-header">
+                        <div class="container" style={{ maxWidth: "1100px" }}>
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div style={{ background: "rgba(34, 197, 94, 0.15)", border: "1px solid rgba(34, 197, 94, 0.3)", borderRadius: "10px", padding: "10px", color: "var(--color-accent)" }}>
+                                        {/* Shopping Bag Icon */}
+                                        <svg class="icon-lg" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                                    </div>
+                                    <div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <h1 class="h4 mb-0 fw-bold text-white">MegaLoja Tech Store</h1>
+                                            <span class="badge-pill-custom badge-green">
+                                                <span class="pulse-live"></span> AntiFraude Ativo
+                                            </span>
+                                        </div>
+                                        <p class="text-secondary small mb-0">Vitrine de Checkout Inteligente • Inteligência Artificial em Tempo Real</p>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex align-items-center gap-2">
+                                    <a href="/" class="btn-secondary-custom small font-mono text-decoration-none">
+                                        <svg class="icon" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                                        Painel MLOps CRISP-DM
+                                    </a>
+                                    <a href="/docs" target="_blank" class="btn-secondary-custom small font-mono text-decoration-none">
+                                        <svg class="icon" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                                        Swagger API
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Main Layout */}
+                    <main class="container py-4" style={{ maxWidth: "1100px" }}>
+
+                        {/* Banner Informativo para o Avaliador */}
+                        <div class="card-custom mb-4 p-3 d-flex flex-wrap justify-content-between align-items-center gap-2" style={{ background: "rgba(15, 23, 42, 0.6)" }}>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge-pill-custom badge-blue font-mono">DEMONSTRAÇÃO DE CHECKOUT</span>
+                                <span class="text-secondary small">
+                                    Simulação de compra conectada ao modelo <code>BaggingClassifier</code> (5 KB) via API FastAPI Serverless.
+                                </span>
+                            </div>
+                            <div class="d-flex gap-2 font-mono small text-secondary">
+                                <span>Aprovadas: <strong class="text-success">{stats.approved}</strong></span> •
+                                <span>2FA SMS: <strong class="text-warning">{stats.challenged}</strong></span> •
+                                <span>Bloqueadas: <strong class="text-danger">{stats.blocked}</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+                            {/* COLUNA 1: A VITRINE (PRODUTO & INJEÇÃO DE DADOS) */}
+                            <div class="col-lg-6">
+                                {/* Card do Produto */}
+                                <div class="card-custom mb-4">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <span class="badge-pill-custom badge-blue mb-1">LANÇAMENTO EXCLUSIVO</span>
+                                            <h2 class="h5 mb-0 fw-bold text-white">Apple iPhone 15 Pro Max 256GB</h2>
+                                            <span class="text-secondary small">Titânio Natural • Tela 6.7" OLED Super Retina XDR • Chip A17 Pro</span>
+                                        </div>
+                                        <span class="badge-pill-custom badge-green">Em Estoque</span>
+                                    </div>
+
+                                    {/* Produto Mockup Visual */}
+                                    <div class="product-img-box mb-3">
+                                        <div style={{ textAlign: "center" }}>
+                                            <svg width="84" height="130" viewBox="0 0 84 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <rect x="2" y="2" width="80" height="126" rx="16" fill="#0B132B" stroke="#334155" strokeWidth="3"/>
+                                                <rect x="28" y="8" width="28" height="6" rx="3" fill="#1E293B"/>
+                                                <rect x="8" y="20" width="68" height="96" rx="10" fill="#020617"/>
+                                                <circle cx="42" cy="68" r="14" fill="#22C55E" fillOpacity="0.15" stroke="#22C55E" strokeWidth="1.5"/>
+                                                <path d="M37 68L40.5 71.5L47 65" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                            </svg>
+                                            <div class="text-secondary small mt-2 font-mono">MegaLoja Mobile Express</div>
+                                        </div>
+                                    </div>
+
+                                    {/* Resumo Financeiro */}
+                                    <div class="border-top border-bottom py-3 my-3" style={{ borderColor: "var(--color-border) !important" }}>
+                                        <div class="d-flex justify-content-between text-secondary small mb-1">
+                                            <span>Preço de Tabela:</span>
+                                            <span>R$ 9.499,00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between text-secondary small mb-1">
+                                            <span>Desconto Promocional:</span>
+                                            <span class="text-success">- R$ 500,00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between text-secondary small mb-2">
+                                            <span>Frete com Seguro:</span>
+                                            <span class="text-success">GRÁTIS (SEDEX)</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-baseline pt-2 border-top" style={{ borderColor: "var(--color-border) !important" }}>
+                                            <strong class="text-white">Total do Pedido:</strong>
+                                            <span class="h4 mb-0 fw-bold font-mono text-white">R$ 8.999,00</span>
+                                        </div>
+                                        <div class="text-secondary small text-end font-mono">ou até 10x de R$ 899,90 sem juros</div>
+                                    </div>
+
+                                    {/* Botão de Finalizar Compra */}
+                                    <button
+                                        class="btn-cta w-100"
+                                        onClick={handleFinalizarCompra}
+                                        disabled={isProcessing}
+                                    >
+                                        {isProcessing ? (
+                                            <>
+                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                <span>Avaliando Risco na Nuvem Vercel...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <svg class="icon" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                                                <span>Finalizar Compra Agora</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+
+                                {/* A INJEÇÃO DE DADOS (OS BASTIDORES) */}
+                                <div class="card-custom">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h3 class="h6 mb-0 text-white fw-bold d-flex align-items-center gap-2">
+                                            <svg class="icon text-info" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                                            Injeção de Dados (15 Amostras do Dataset)
+                                        </h3>
+                                        <span class="badge-pill-custom badge-neutral font-mono">{mode === "random" ? "Modo: Sorteio" : "Modo: Manual"}</span>
+                                    </div>
+
+                                    <p class="text-secondary small mb-3">
+                                        Cada clique envia aos bastidores uma transação com <strong>Time, Amount e V1 a V28</strong> diretamente para o modelo.
+                                    </p>
+
+                                    {/* Seletor de Modo */}
+                                    <div class="d-flex gap-2 mb-3">
+                                        <button
+                                            class={`btn-secondary-custom flex-grow-1 small ${mode === "random" ? "border-success text-white" : ""}`}
+                                            onClick={() => setMode("random")}
+                                        >
+                                            🎲 Sorteio Aleatório (Padrão)
+                                        </button>
+                                        <button
+                                            class={`btn-secondary-custom flex-grow-1 small ${mode === "manual" ? "border-info text-white" : ""}`}
+                                            onClick={() => setMode("manual")}
+                                        >
+                                            🎯 Seleção Didática Manual
+                                        </button>
+                                    </div>
+
+                                    {mode === "manual" && (
+                                        <div class="mb-3">
+                                            <label class="form-label text-secondary small">Escolha a transação de teste:</label>
+                                            <select
+                                                class="form-select-custom"
+                                                value={selectedId}
+                                                onChange={(e) => {
+                                                    setSelectedId(e.target.value);
+                                                    const found = SAMPLE_TRANSACTIONS.find(t => t.id === e.target.value);
+                                                    if (found) setActiveTx(found);
+                                                }}
+                                            >
+                                                <optgroup label="🟢 Compras Normais (Score Baixo -> Aprovado)">
+                                                    {SAMPLE_TRANSACTIONS.filter(t => t.expected_category === "normal").map(t => (
+                                                        <option key={t.id} value={t.id}>{t.id} — {t.description}</option>
+                                                    ))}
+                                                </optgroup>
+                                                <optgroup label="🟡 Zona Amarela (Score Médio -> Desafio SMS 2FA)">
+                                                    {SAMPLE_TRANSACTIONS.filter(t => t.expected_category === "yellow_zone").map(t => (
+                                                        <option key={t.id} value={t.id}>{t.id} — {t.description}</option>
+                                                    ))}
+                                                </optgroup>
+                                                <optgroup label="🔴 Fraudes Reais (Score Alto -> Bloqueio Imediato)">
+                                                    {SAMPLE_TRANSACTIONS.filter(t => t.expected_category === "fraud").map(t => (
+                                                        <option key={t.id} value={t.id}>{t.id} — {t.description}</option>
+                                                    ))}
+                                                </optgroup>
+                                            </select>
+                                        </div>
+                                    )}
+
+                                    {/* Cartão da Transação Ativa */}
+                                    <div class="p-3 rounded border" style={{ background: "var(--color-primary)", borderColor: "var(--color-border)" }}>
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="badge-pill-custom badge-neutral font-mono">{activeTx.id}</span>
+                                            <span class={`badge-pill-custom ${activeTx.expected_category === "fraud" ? "badge-red" : activeTx.expected_category === "yellow_zone" ? "badge-yellow" : "badge-green"}`}>
+                                                {activeTx.category_label}
+                                            </span>
+                                        </div>
+                                        <div class="text-white small fw-bold mb-2">{activeTx.description}</div>
+                                        <div class="d-flex justify-content-between font-mono small text-secondary">
+                                            <span>Tempo: {activeTx.Time}s</span>
+                                            <span>Valor Transação: R$ {activeTx.Amount.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Toggle Accordion Payload */}
+                                    <button
+                                        class="btn btn-link text-info text-decoration-none small p-0 mt-2 font-mono"
+                                        onClick={() => setShowPayload(!showPayload)}
+                                    >
+                                        {showPayload ? "▼ Ocultar Componentes PCA (V1..V28)" : "▶ Inspecionar Payload Completo (V1..V28)"}
+                                    </button>
+
+                                    {showPayload && (
+                                        <pre class="mt-2 p-2 rounded bg-black small font-mono text-secondary" style={{ maxHeight: "150px", overflowY: "auto", fontSize: "0.75rem" }}>
+                                            {JSON.stringify(activeTx, null, 2)}
+                                        </pre>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* COLUNA 2: A REAÇÃO VISUAL (O NEGÓCIO) */}
+                            <div class="col-lg-6">
+                                <div class="card-custom h-100 d-flex flex-column">
+                                    <div class="border-bottom pb-3 mb-3 d-flex justify-content-between align-items-center" style={{ borderColor: "var(--color-border) !important" }}>
+                                        <div>
+                                            <h2 class="h5 mb-0 fw-bold text-white">Parecer do Motor de Decisão</h2>
+                                            <span class="text-secondary small font-mono">Resposta em milissegundos da Inteligência Artificial</span>
+                                        </div>
+                                        {result && (
+                                            <span class="badge-pill-custom badge-neutral">
+                                                ⚡ Latência: {result.latency} ms
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* Estado 1: Aguardando Clique */}
+                                    {!result && !isProcessing && (
+                                        <div class="my-auto text-center py-5">
+                                            <div style={{ color: "#334155" }}>
+                                                <svg class="icon-xl mb-3" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                            </div>
+                                            <h3 class="h6 text-secondary fw-bold">Aguardando Ação de Compra</h3>
+                                            <p class="text-secondary small" style={{ maxWidth: "340px", margin: "0 auto" }}>
+                                                Clique em <strong>"Finalizar Compra Agora"</strong> na vitrine para simular a requisição de pagamento e a classificação em tempo real.
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {/* Estado 2: Processando */}
+                                    {isProcessing && (
+                                        <div class="my-auto text-center py-5">
+                                            <div class="spinner-border text-success mb-3" role="status" style={{ width: "3rem", height: "3rem" }}></div>
+                                            <h3 class="h6 text-white fw-bold">Executando Pipeline Antifraude...</h3>
+                                            <p class="text-secondary small font-mono">
+                                                Normalizando com RobustScaler &bull; BaggingClassifier (Logistic Regression x10)
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {/* Estado 3: Resultado da Decisão */}
+                                    {result && !isProcessing && (
+                                        <div class="my-auto py-2">
+
+                                            {/* REAÇÃO A: SCORE BAIXO (< 0.50) -> CHECK VERDE: PAGAMENTO APROVADO */}
+                                            {(result.risk_zone === "success" || smsVerified) && (
+                                                <div class="p-4 rounded-3 text-center border" style={{ background: "rgba(34, 197, 94, 0.08)", borderColor: "var(--color-accent)", boxShadow: "var(--shadow-glow-accent)" }}>
+                                                    <div style={{ color: "var(--color-accent)" }}>
+                                                        <svg class="icon-xl mb-2" viewBox="0 0 24 24">
+                                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                                            <polyline points="22 4 12 14.01 9 11.01"/>
+                                                        </svg>
+                                                    </div>
+                                                    <span class="badge-pill-custom badge-green mb-2">SCORE SEGURO</span>
+                                                    <h3 class="h4 text-success fw-bold mb-2">Pagamento Aprovado</h3>
+                                                    <p class="text-secondary small mb-3">
+                                                        {smsVerified 
+                                                            ? "Identidade autenticada com sucesso via SMS 2FA. Pedido #ML-20261110 liberado para expedição!"
+                                                            : "Transação autorizada com sucesso pelo emissor do cartão. Pedido #ML-20261110 confirmado para envio imediato."}
+                                                    </p>
+
+                                                    <div class="p-3 rounded mb-3 text-start font-mono small" style={{ background: "var(--color-primary)", border: "1px solid var(--color-border)" }}>
+                                                        <div class="d-flex justify-content-between mb-1">
+                                                            <span class="text-secondary">Probabilidade de Fraude:</span>
+                                                            <strong class="text-success">{(result.fraud_probability * 100).toFixed(2)}%</strong>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between mb-1">
+                                                            <span class="text-secondary">Limiar do Modelo:</span>
+                                                            <span class="text-white">50.00%</span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between mb-1">
+                                                            <span class="text-secondary">Amostra Utilizada:</span>
+                                                            <span class="text-white">{result.txId}</span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between">
+                                                            <span class="text-secondary">Algoritmo:</span>
+                                                            <span class="text-white">{result.model_name}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <button class="btn-secondary-custom w-100" onClick={handleFinalizarCompra}>
+                                                        <span>Realizar Nova Simulação de Compra</span>
+                                                    </button>
+                                                </div>
+                                            )}
+
+                                            {/* REAÇÃO B: ZONA AMARELA (SCORE MÉDIO 0.50 A 0.74) -> ALERTA DE 2FA SMS */}
+                                            {result.risk_zone === "warning" && !smsVerified && (
+                                                <div class="p-4 rounded-3 text-center border" style={{ background: "rgba(245, 158, 11, 0.08)", borderColor: "var(--color-warning)", boxShadow: "var(--shadow-glow-warning)" }}>
+                                                    <div style={{ color: "var(--color-warning)" }}>
+                                                        <svg class="icon-xl mb-2" viewBox="0 0 24 24">
+                                                            <circle cx="12" cy="12" r="10"/>
+                                                            <line x1="12" y1="8" x2="12" y2="12"/>
+                                                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                                        </svg>
+                                                    </div>
+                                                    <span class="badge-pill-custom badge-yellow mb-2">ZONA AMARELA • RISCO MODERADO</span>
+                                                    <h3 class="h4 text-warning fw-bold mb-2">Atenção: Verificação por SMS</h3>
+                                                    <p class="text-secondary small mb-3">
+                                                        O sistema identificou um comportamento atípico para esta compra. Um desafio de segurança (2FA) foi disparado via SMS para o titular.
+                                                    </p>
+
+                                                    <div class="p-3 rounded mb-3 text-start font-mono small" style={{ background: "var(--color-primary)", border: "1px solid var(--color-border)" }}>
+                                                        <div class="d-flex justify-content-between mb-1">
+                                                            <span class="text-secondary">Probabilidade de Fraude:</span>
+                                                            <strong class="text-warning">{(result.fraud_probability * 100).toFixed(2)}%</strong>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between mb-1">
+                                                            <span class="text-secondary">Faixa de Decisão:</span>
+                                                            <span class="text-warning">50% a 74% (Desafio 2FA)</span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between">
+                                                            <span class="text-secondary">Ação Requerida:</span>
+                                                            <span class="text-white">Confirmação de Código SMS</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <button class="btn-cta w-100" style={{ background: "var(--color-warning)", color: "#000" }} onClick={() => setIsModalOpen(true)}>
+                                                        <svg class="icon text-dark" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" x2="12.01" y1="18" y2="18"/></svg>
+                                                        <span>Abrir Modal para Inserir Código SMS</span>
+                                                    </button>
+                                                </div>
+                                            )}
+
+                                            {/* REAÇÃO C: FRAUDE CONFIRMADA (SCORE ALTO >= 0.75) -> AVISO VERMELHO: TRANSAÇÃO NEGADA */}
+                                            {result.risk_zone === "danger" && (
+                                                <div class="p-4 rounded-3 text-center border" style={{ background: "rgba(239, 68, 68, 0.08)", borderColor: "var(--color-destructive)", boxShadow: "var(--shadow-glow-danger)" }}>
+                                                    <div style={{ color: "var(--color-destructive)" }}>
+                                                        <svg class="icon-xl mb-2" viewBox="0 0 24 24">
+                                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                                                            <line x1="12" y1="8" x2="12" y2="12"/>
+                                                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                                        </svg>
+                                                    </div>
+                                                    <span class="badge-pill-custom badge-red mb-2">BLOQUEIO PREVENTIVO</span>
+                                                    <h3 class="h4 text-danger fw-bold mb-2">Transação Negada por Política de Segurança</h3>
+                                                    <p class="text-secondary small mb-3">
+                                                        O motor de Machine Learning identificou desvios severos compatíveis com clonagem e ataque automatizado de cartões de crédito. A transação foi barrada em milissegundos.
+                                                    </p>
+
+                                                    <div class="p-3 rounded mb-3 text-start font-mono small" style={{ background: "var(--color-primary)", border: "1px solid var(--color-border)" }}>
+                                                        <div class="d-flex justify-content-between mb-1">
+                                                            <span class="text-secondary">Probabilidade Calculada:</span>
+                                                            <strong class="text-danger">{(result.fraud_probability * 100).toFixed(2)}%</strong>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between mb-1">
+                                                            <span class="text-secondary">Classificação de Risco:</span>
+                                                            <span class="text-danger">CRÍTICO (&ge; 75%)</span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between mb-1">
+                                                            <span class="text-secondary">Amostra Injetada:</span>
+                                                            <span class="text-danger">{result.txId}</span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between">
+                                                            <span class="text-secondary">Decisão Automatizada:</span>
+                                                            <span class="text-white">Bloqueio Imediato &bull; Alerta SIEM</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <button class="btn-secondary-custom w-100" onClick={handleFinalizarCompra}>
+                                                        <span>Tentar Outra Transação de Demonstração</span>
+                                                    </button>
+                                                </div>
+                                            )}
+
+                                        </div>
+                                    )}
+
+                                    {/* Footer do Card */}
+                                    <div class="mt-auto pt-3 border-top text-secondary small font-mono d-flex justify-content-between" style={{ borderColor: "var(--color-border) !important" }}>
+                                        <span>MegaLoja S.A. • Antifraude v1.2</span>
+                                        <span>FATEC Ourinhos (Prof. Dr. Sidney Ferrari)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </main>
+
+                    {/* MODAL DA ZONA AMARELA: DESAFIO SMS 2FA */}
+                    {isModalOpen && (
+                        <div class="modal-overlay" onClick={() => setIsModalOpen(false)}>
+                            <div class="modal-card" onClick={(e) => e.stopPropagation()}>
+                                <div class="text-center mb-3">
+                                    <div style={{ color: "var(--color-warning)" }}>
+                                        <svg class="icon-xl mb-2" viewBox="0 0 24 24">
+                                            <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
+                                            <line x1="12" x2="12.01" y1="18" y2="18"/>
+                                        </svg>
+                                    </div>
+                                    <span class="badge-pill-custom badge-yellow mb-2">AUTENTICAÇÃO EM 2 ETAPAS (2FA)</span>
+                                    <h3 class="h5 text-white fw-bold mb-1">Atenção: Insira o código SMS enviado ao seu celular</h3>
+                                    <p class="text-secondary small">
+                                        Identificamos um padrão de compra atípico. Enviamos um código de segurança de 6 dígitos para o seu telefone cadastrado com final <strong>(11) 98***-**42</strong>.
+                                    </p>
+                                </div>
+
+                                <form onSubmit={handleConfirmarSMS}>
+                                    <div class="mb-3 text-center">
+                                        <label class="form-label text-secondary small font-mono mb-2">Código SMS de Verificação:</label>
+                                        <input
+                                            type="text"
+                                            class="form-input-custom text-center fw-bold fs-4 py-2"
+                                            placeholder="Ex: 849204"
+                                            maxLength="6"
+                                            value={smsCode}
+                                            onChange={(e) => setSmsCode(e.target.value)}
+                                            autoFocus
+                                        />
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <button type="button" class="btn btn-link text-info text-decoration-none small p-0 font-mono" onClick={fillDemoCode}>
+                                            Preencher Código de Teste (849204)
+                                        </button>
+                                        <span class="text-secondary small font-mono">Expira em 04:59</span>
+                                    </div>
+
+                                    <div class="d-flex gap-2">
+                                        <button
+                                            type="button"
+                                            class="btn-secondary-custom flex-grow-1"
+                                            onClick={() => setIsModalOpen(false)}
+                                        >
+                                            Cancelar
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            class="btn-cta flex-grow-1"
+                                            style={{ background: "var(--color-warning)", color: "#000" }}
+                                        >
+                                            Confirmar Código SMS
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+</body>
+</html>
