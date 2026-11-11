@@ -1105,6 +1105,9 @@ def get_health_json():
 
 def get_requested_path(request: Request) -> str:
     """Extrai o caminho original da requisição mesmo sob rewrite do Vercel Serverless."""
+    q = request.query_params.get("__path", "")
+    if q:
+        return q.lower()
     for header in ["x-matched-path", "x-forwarded-uri", "x-invoke-path"]:
         val = request.headers.get(header)
         if val:
@@ -1131,11 +1134,11 @@ def root_view(request: Request):
         return app.openapi()
         
     if "health" in req_path:
-        return JSONResponse(content=get_health_json())
+        return JSONResponse(content=get_health_json(request))
 
     accept = request.headers.get("accept", "")
     if "application/json" in accept and "text/html" not in accept:
-        return JSONResponse(content=get_health_json())
+        return JSONResponse(content=get_health_json(request))
         
     return HTMLResponse(content=HTML_DASHBOARD)
 
