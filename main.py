@@ -145,8 +145,8 @@ HTML_DASHBOARD = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MegaLoja Fraud Guard — Sistema Preditivo de Fraudes</title>
-    <!-- Google Fonts: Fira Code + Fira Sans (Design System Master) -->
+    <title>MegaLoja Tech Store — Vitrine E-Commerce & Prevenção Antifraude</title>
+    <!-- Google Fonts: Fira Code + Fira Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -173,8 +173,9 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
             --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.5), 0 2px 4px -2px rgba(0,0,0,0.4);
             --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.6), 0 4px 6px -4px rgba(0,0,0,0.5);
-            --shadow-glow-accent: 0 0 15px rgba(34, 197, 94, 0.25);
-            --shadow-glow-danger: 0 0 15px rgba(239, 68, 68, 0.35);
+            --shadow-glow-accent: 0 0 18px rgba(34, 197, 94, 0.3);
+            --shadow-glow-danger: 0 0 18px rgba(239, 68, 68, 0.4);
+            --shadow-glow-warning: 0 0 18px rgba(245, 158, 11, 0.35);
         }
 
         * { box-sizing: border-box; }
@@ -197,7 +198,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         .header-glow {
             background: radial-gradient(circle at 50% -20%, rgba(34, 197, 94, 0.12) 0%, rgba(2, 6, 23, 0) 70%);
             border-bottom: 1px solid var(--color-border);
-            padding: 2.2rem 1rem 1.8rem;
+            padding: 1.8rem 1rem 1.4rem;
         }
 
         .card-custom {
@@ -211,6 +212,64 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             border-color: #475569;
         }
 
+        /* Product Cards */
+        .product-card {
+            background: var(--color-card);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            transition: all 200ms ease;
+        }
+        .product-card:hover {
+            border-color: var(--color-accent);
+            box-shadow: var(--shadow-glow-accent);
+            transform: translateY(-3px);
+        }
+        .product-img-box {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.85rem;
+            position: relative;
+        }
+
+        /* Virtual Credit Card */
+        .virtual-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #070b14 100%);
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            border-radius: 14px;
+            padding: 1.25rem;
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        .virtual-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(34, 197, 94, 0.08) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .chip-sim {
+            width: 40px;
+            height: 28px;
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+            border-radius: 6px;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.4);
+        }
+
         /* Preset Cards */
         .preset-chip {
             background: var(--color-muted);
@@ -220,13 +279,11 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             cursor: pointer;
             transition: all 200ms ease;
             text-align: left;
-            flex: 1;
-            min-width: 180px;
+            width: 100%;
         }
         .preset-chip:hover {
             border-color: var(--color-info);
             background: #22293f;
-            transform: translateY(-2px);
         }
         .preset-chip.active {
             border-color: var(--color-accent);
@@ -265,7 +322,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             font-weight: 700;
             border: none;
             border-radius: 8px;
-            padding: 14px 20px;
+            padding: 12px 20px;
             cursor: pointer;
             transition: all 200ms ease;
             display: inline-flex;
@@ -273,7 +330,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             justify-content: center;
             gap: 10px;
             font-family: 'Fira Sans', sans-serif;
-            font-size: 1.05rem;
+            font-size: 1rem;
         }
         .btn-cta:hover:not(:disabled) {
             background: #16a34a;
@@ -290,7 +347,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             color: var(--color-foreground);
             border: 1px solid var(--color-border);
             border-radius: 8px;
-            padding: 10px 16px;
+            padding: 9px 15px;
             cursor: pointer;
             transition: all 200ms ease;
             font-weight: 600;
@@ -392,8 +449,8 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             height: 24px;
         }
         .icon-xl {
-            width: 42px;
-            height: 42px;
+            width: 48px;
+            height: 48px;
         }
 
         /* Tables */
@@ -411,12 +468,12 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             text-transform: uppercase;
             font-size: 0.75rem;
             letter-spacing: 0.05em;
-            padding: 12px 14px;
+            padding: 10px 12px;
             border-bottom: 1px solid var(--color-border);
             text-align: left;
         }
         .table-custom td {
-            padding: 12px 14px;
+            padding: 10px 12px;
             border-bottom: 1px solid #1e293b;
             font-family: 'Fira Code', monospace;
         }
@@ -427,11 +484,11 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         /* Gauge progress bar */
         .gauge-bar-wrapper {
             background: var(--color-primary);
-            height: 14px;
-            border-radius: 7px;
+            height: 12px;
+            border-radius: 6px;
             overflow: hidden;
             border: 1px solid var(--color-border);
-            margin: 12px 0;
+            margin: 10px 0;
         }
         .gauge-bar-fill {
             height: 100%;
@@ -443,61 +500,32 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             outline: 2px solid var(--color-accent);
             outline-offset: 2px;
         }
-
-        /* Reduced motion */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
     </style>
 </head>
 <body>
 
-    <!-- Header Corporativo Enterprise Gateway -->
+    <!-- Header -->
     <header class="header-glow">
-        <div class="container" style="max-width: 1000px;">
+        <div class="container" style="max-width: 1050px;">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
                 <div class="d-flex align-items-center gap-3">
-                    <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 12px; color: var(--color-accent);">
-                        <!-- Shield Icon -->
-                        <svg class="icon-xl" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                            <path d="m9 12 2 2 4-4"/>
-                        </svg>
+                    <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; padding: 10px; color: var(--color-accent);">
+                        <svg class="icon-lg" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                     </div>
                     <div>
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <h1 class="h3 mb-0 fw-bold text-white">MegaLoja Fraud Guard</h1>
+                        <div class="d-flex align-items-center gap-2">
+                            <h1 class="h4 mb-0 fw-bold text-white">MegaLoja Tech Store</h1>
                             <span class="badge-status badge-success">
-                                <span class="pulse-dot online"></span> v1.2.0 LIVE
+                                <span class="pulse-dot online"></span> AntiFraude Ativo
                             </span>
                         </div>
-                        <p class="text-secondary mb-0 small">
-                            Motor Preditivo em Tempo Real & Monitoramento MLOps de Data Drift — Metodologia CRISP-DM
-                        </p>
+                        <p class="text-secondary small mb-0">Vitrine E-Commerce &bull; Detecção de Fraude em Tempo Real (Metodologia CRISP-DM)</p>
                     </div>
                 </div>
-
-                <div class="d-flex flex-column align-items-end text-end">
-                    <div class="d-flex gap-2 mb-1">
-                        <a href="/checkout" class="badge-status badge-success text-decoration-none" title="Abrir Vitrine E-commerce em React">
-                            <!-- Shopping Bag Icon -->
-                            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                            Vitrine Checkout React &rarr;
-                        </a>
-                        <span class="badge-status badge-info">
-                            <!-- Cloud Icon -->
-                            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
-                            Vercel Serverless
-                        </span>
-                        <span class="badge-status badge-neutral">
-                            <!-- Cpu Icon -->
-                            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>
-                            Bagging (RL x10)
-                        </span>
+                <div class="text-end">
+                    <div class="d-flex align-items-center gap-2 mb-1 justify-content-end">
+                        <span class="badge-status badge-neutral">Vercel Serverless</span>
+                        <span class="badge-status badge-neutral">Bagging (RL x10)</span>
                     </div>
                     <span class="text-secondary small font-mono">FATEC Ourinhos • Prof. Dr. Sidney C. Ferrari</span>
                 </div>
@@ -506,295 +534,293 @@ HTML_DASHBOARD = """<!DOCTYPE html>
     </header>
 
     <!-- Main Container -->
-    <main class="container py-4" style="max-width: 1000px;">
+    <main class="container py-4" style="max-width: 1050px;">
 
-        <!-- Navigation Tabs -->
-        <nav class="nav-tabs-custom" role="tablist" aria-label="Seções do Sistema">
-            <button class="tab-btn active" id="tab-btn-simulador" onclick="switchTab('simulador')" role="tab" aria-selected="true" aria-controls="tab-simulador">
-                <!-- Zap Icon -->
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                1. Inferência em Tempo Real (Etapas 1-4)
+        <!-- Navigation Tabs (3 Passos: 1. Selecionar Produto, 2. Checkout, 3. Conclusão) -->
+        <nav class="nav-tabs-custom" role="tablist" aria-label="Etapas da Loja">
+            <button class="tab-btn active" id="tab-btn-produtos" onclick="switchTab('produtos')" role="tab">
+                <svg class="icon" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                1. Selecionar Produto
             </button>
-            <button class="tab-btn" id="tab-btn-drift" onclick="switchTab('drift')" role="tab" aria-selected="false" aria-controls="tab-drift">
-                <!-- Activity Icon -->
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                2. Monitoramento de Drift & MLOps (Etapa 5)
+            <button class="tab-btn" id="tab-btn-checkout" onclick="switchTab('checkout')" role="tab">
+                <svg class="icon" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                2. Checkout
             </button>
-            <button class="tab-btn" id="tab-btn-crisp" onclick="switchTab('crisp')" role="tab" aria-selected="false" aria-controls="tab-crisp">
-                <!-- Layers Icon -->
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-                3. Arquitetura & Governança CRISP-DM
+            <button class="tab-btn" id="tab-btn-conclusao" onclick="switchTab('conclusao')" role="tab">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                3. Conclusão
             </button>
         </nav>
 
         <!-- ========================================== -->
-        <!-- TAB 1: INFERÊNCIA EM TEMPO REAL -->
+        <!-- TAB 1: 1. SELECIONAR PRODUTO -->
         <!-- ========================================== -->
-        <section id="tab-simulador" role="tabpanel" aria-labelledby="tab-btn-simulador">
-            <div class="card-custom p-4 mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <h2 class="h5 mb-1 text-white fw-bold">Simulação de Transação Bancária</h2>
-                        <p class="text-secondary small mb-0">Insira os parâmetros brutos ou clique nos cenários de teste pré-configurados.</p>
-                    </div>
-                    <span class="badge-status badge-info">Latência Estimada: &lt; 15ms</span>
+        <section id="tab-produtos" role="tabpanel">
+            <div class="card-custom p-3 mb-4 d-flex flex-wrap justify-content-between align-items-center gap-2" style="background: rgba(15, 23, 42, 0.7);">
+                <div>
+                    <span class="badge-status badge-info mb-1 font-mono">PASSO 1 DE 3 • CATÁLOGO DA LOJA</span>
+                    <h2 class="h5 mb-0 text-white fw-bold">Selecione um produto para iniciar a simulação de compra</h2>
+                    <p class="text-secondary small mb-0">Cada produto possui valor e características enviadas ao pipeline preditivo no Checkout.</p>
                 </div>
-
-                <!-- Presets -->
-                <div class="d-flex flex-wrap gap-2 mb-4">
-                    <button type="button" class="preset-chip active" id="chip-fraude" onclick="carregarPreset('fraude')">
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <!-- Alert Triangle Icon -->
-                            <svg class="icon text-danger" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                            <strong class="text-white small">Fraude Crítica (Cell 41)</strong>
-                        </div>
-                        <div class="text-secondary small font-mono">R$ 149,62 • Madrugada</div>
-                    </button>
-
-                    <button type="button" class="preset-chip" id="chip-normal" onclick="carregarPreset('normal')">
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <!-- Check Circle Icon -->
-                            <svg class="icon text-success" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                            <strong class="text-white small">Compra Cotidiana Segura</strong>
-                        </div>
-                        <div class="text-secondary small font-mono">R$ 45,00 • Tarde Comum</div>
-                    </button>
-
-                    <button type="button" class="preset-chip" id="chip-suspeita" onclick="carregarPreset('suspeita')">
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <!-- Help Circle Icon -->
-                            <svg class="icon text-warning" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                            <strong class="text-white small">Desafio de Segurança (2FA)</strong>
-                        </div>
-                        <div class="text-secondary small font-mono">R$ 1.850,00 • Noturno</div>
-                    </button>
-                </div>
-
-                <!-- Form Inputs -->
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="time_val" class="form-label">Tempo Transcorrido (Segundos acumulados):</label>
-                        <input type="number" id="time_val" class="form-control-custom" value="406.0" step="1" oninput="atualizarHoraEstimada()">
-                        <div class="text-secondary small mt-1 font-mono" id="time_hora_display">Horário estimado: 00:06:46 (Hora 0)</div>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="amount_val" class="form-label">Valor Monetário da Transação (R$):</label>
-                        <input type="number" id="amount_val" class="form-control-custom" value="149.62" step="0.01">
-                        <div class="text-secondary small mt-1">Normalizado via <code>RobustScaler</code> na inferência</div>
-                    </div>
-                </div>
-
-                <!-- PCA Accordion Toggle -->
-                <div class="mt-3">
-                    <button type="button" class="btn-secondary-custom btn-sm w-100 justify-content-between" onclick="togglePCA()" id="btnTogglePCA">
-                        <span class="d-flex align-items-center gap-2">
-                            <!-- Sliders Icon -->
-                            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-                            Visualizar e Editar Componentes Criptografados PCA (V1 a V28)
-                        </span>
-                        <span id="pcaStatusText" class="text-secondary small">Expandir &darr;</span>
-                    </button>
-                </div>
-
-                <!-- Grid de Variáveis PCA -->
-                <div id="pcaGridContainer" class="mt-3 p-3 card-custom" style="display: none; background: #070b16;">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="small text-secondary font-mono">28 Componentes Principais (PCA) do Cartão</span>
-                        <button type="button" class="btn btn-outline-secondary btn-sm py-0 font-mono" style="font-size: 0.75rem;" onclick="zerarPCAs()">Resetar V1..V28 para 0.0</button>
-                    </div>
-                    <div class="row g-2" id="pcaInputsContainer"></div>
-                </div>
-
-                <!-- Submit Button -->
-                <div class="mt-4">
-                    <button id="btnAvaliar" class="btn-cta w-100" onclick="avaliarTransacao()">
-                        <!-- Shield Check Icon -->
-                        <svg class="icon-lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-                        <span>Avaliar Transação em Tempo Real</span>
-                    </button>
-                </div>
+                <span class="badge-status badge-success">8 Itens Disponíveis</span>
             </div>
 
-            <!-- RESULT CARD -->
-            <div id="resultadoCard" class="card-custom p-4 mb-4" style="display: none;">
-                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3" style="border-color: var(--color-border) !important;">
-                    <div>
-                        <h3 class="h5 mb-0 text-white fw-bold">Resultado da Análise Preditiva</h3>
-                        <span class="text-secondary small font-mono">Parecer emitido pelo Motor de Risco MegaLoja</span>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <span class="badge-status badge-neutral" id="metaLatencia">Latência: -- ms</span>
-                        <span class="badge-status badge-info" id="metaStatusHttp">HTTP 200 OK</span>
-                    </div>
+            <!-- Grid de Produtos da Loja -->
+            <div class="row g-3" id="catalogoProdutosContainer"></div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: 2. CHECKOUT -->
+        <!-- ========================================== -->
+        <section id="tab-checkout" role="tabpanel" style="display: none;">
+            <div class="card-custom p-3 mb-4 d-flex flex-wrap justify-content-between align-items-center gap-2" style="background: rgba(15, 23, 42, 0.7);">
+                <div>
+                    <span class="badge-status badge-info mb-1 font-mono">PASSO 2 DE 3 • CHECKOUT SEGURO</span>
+                    <h2 class="h5 mb-0 text-white fw-bold">Revise seu pedido e configure o cenário de risco antifraude</h2>
+                    <p class="text-secondary small mb-0">O modelo BaggingClassifier processará a requisição em tempo real via API FastAPI.</p>
                 </div>
+                <button type="button" class="btn-secondary-custom btn-sm" onclick="switchTab('produtos')">
+                    &larr; Trocar de Produto
+                </button>
+            </div>
 
-                <div class="row align-items-center g-4 py-2">
-                    <div class="col-md-5 text-center border-end" style="border-color: var(--color-border) !important;">
-                        <span class="text-secondary small text-uppercase font-mono">Probabilidade de Fraude</span>
-                        <div id="probDisplay" class="metric-val display-4 fw-bold my-1 text-white">--%</div>
-                        
-                        <div class="gauge-bar-wrapper">
-                            <div id="gaugeBar" class="gauge-bar-fill" style="width: 0%; background-color: var(--color-accent);"></div>
+            <div class="row g-4">
+                <!-- Coluna 1: Resumo do Pedido & Cartão Simulado -->
+                <div class="col-lg-6">
+                    <div class="card-custom p-4 mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style="border-color: var(--color-border) !important;">
+                            <h3 class="h6 mb-0 text-white fw-bold">Item Selecionado</h3>
+                            <span class="badge-status badge-success">1x Unidade</span>
                         </div>
 
-                        <div class="d-flex justify-content-between text-secondary small font-mono px-1">
-                            <span>0% Seguro</span>
-                            <span>Threshold: 50%</span>
-                            <span>100% Crítico</span>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div id="checkoutProdIcon" style="width: 54px; height: 54px; background: var(--color-muted); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"></div>
+                            <div>
+                                <h4 class="h6 mb-1 text-white fw-bold" id="checkoutProdNome">Apple iPhone 15 Pro Max 256GB</h4>
+                                <span class="text-secondary small" id="checkoutProdSub">Titânio Natural • Tela 6.7" OLED</span>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="col-md-7">
-                        <span class="text-secondary small text-uppercase font-mono">Recomendação do Sistema</span>
-                        <div id="decisaoBanner" class="p-3 mt-2 rounded-3 border" style="background: var(--color-muted);">
-                            <div class="d-flex align-items-start gap-3">
-                                <div id="decisIncone" class="mt-1"></div>
+                        <div class="p-3 rounded mb-3 font-mono small" style="background: var(--color-primary); border: 1px solid var(--color-border);">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-secondary">Preço do Produto:</span>
+                                <strong class="text-white" id="checkoutProdPreco">R$ 8.999,00</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-secondary">Desconto à Vista:</span>
+                                <span class="text-success">- R$ 100,00</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-secondary">Frete com Seguro:</span>
+                                <span class="text-success fw-bold">GRÁTIS (Sedex Express)</span>
+                            </div>
+                            <div class="d-flex justify-content-between pt-2 border-top" style="border-color: var(--color-border) !important;">
+                                <strong class="text-white">Total do Pedido:</strong>
+                                <strong class="h5 mb-0" id="checkoutProdTotal" style="color: var(--color-accent);">R$ 8.899,00</strong>
+                            </div>
+                        </div>
+
+                        <!-- Cartão Virtual -->
+                        <div class="virtual-card">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="chip-sim"></div>
+                                <span class="font-mono small text-secondary">CARTÃO VIRTUAL</span>
+                            </div>
+                            <div class="font-mono fs-5 fw-bold mb-2 text-white" style="letter-spacing: 2px;">
+                                •••• •••• •••• 4242
+                            </div>
+                            <div class="d-flex justify-content-between align-items-end font-mono small">
                                 <div>
-                                    <h4 class="h6 mb-1 fw-bold" id="decisaoTitulo">--</h4>
-                                    <p class="mb-0 small text-secondary" id="decisaoDesc">--</p>
+                                    <span class="text-secondary" style="font-size: 0.65rem; display: block;">TITULAR</span>
+                                    <span class="text-white fw-bold">ALBERTO T FERRARI</span>
+                                </div>
+                                <div>
+                                    <span class="text-secondary" style="font-size: 0.65rem; display: block;">VALIDADE</span>
+                                    <span class="text-white">11/29</span>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="mt-3 pt-2 d-flex flex-wrap gap-2 text-secondary small font-mono">
-                            <div><strong>Modelo:</strong> <span id="resModeloNome" class="text-white">BaggingClassifier (RL)</span></div>
-                            <div class="ms-auto"><strong>Ação da API:</strong> <span id="resAcao" class="text-white">Concluída</span></div>
+                <!-- Coluna 2: Injeção de Risco Antifraude & Finalizar Compra -->
+                <div class="col-lg-6">
+                    <div class="card-custom p-4 mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style="border-color: var(--color-border) !important;">
+                            <div>
+                                <h3 class="h6 mb-0 text-white fw-bold">Perfil de Risco da Transação</h3>
+                                <span class="text-secondary small">Selecione o comportamento para testar a reação</span>
+                            </div>
+                            <span class="badge-status badge-info">FastAPI ML</span>
                         </div>
+
+                        <!-- Cenários Pré-configurados -->
+                        <div class="d-flex flex-column gap-2 mb-3">
+                            <button type="button" class="preset-chip active" id="chip-normal" onclick="carregarPreset('normal')">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <svg class="icon text-success" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    <strong class="text-white small">🟢 Compra Habitual Segura (Score &lt; 50%)</strong>
+                                </div>
+                                <div class="text-secondary small font-mono">Cliente habitual • Horário comercial • Cartão verificado</div>
+                            </button>
+
+                            <button type="button" class="preset-chip" id="chip-suspeita" onclick="carregarPreset('suspeita')">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <svg class="icon text-warning" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                    <strong class="text-white small">🟡 Zona Amarela / Risco Médio (Desafio 2FA SMS)</strong>
+                                </div>
+                                <div class="text-secondary small font-mono">Score 50% a 74% • Compra noturna • Requer SMS com temporizador</div>
+                            </button>
+
+                            <button type="button" class="preset-chip" id="chip-fraude" onclick="carregarPreset('fraude')">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <svg class="icon text-danger" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                    <strong class="text-white small">🔴 Tentativa de Fraude Crítica (Score &ge; 75%)</strong>
+                                </div>
+                                <div class="text-secondary small font-mono">Padrões Cell 41 • Madrugada • Bloqueio imediato por segurança</div>
+                            </button>
+                        </div>
+
+                        <!-- Parâmetros brutos -->
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label for="time_val" class="form-label font-mono">Tempo (Segundos):</label>
+                                <input type="number" id="time_val" class="form-control-custom" value="50000.0" step="1" oninput="atualizarHoraEstimada()">
+                                <div class="text-secondary small mt-1 font-mono" id="time_hora_display" style="font-size: 0.72rem;">13:53:20</div>
+                            </div>
+                            <div class="col-6">
+                                <label for="amount_val" class="form-label font-mono">Valor da Transação (R$):</label>
+                                <input type="number" id="amount_val" class="form-control-custom" value="8899.00" step="0.01">
+                                <div class="text-secondary small mt-1" style="font-size: 0.72rem;">RobustScaler na inferência</div>
+                            </div>
+                        </div>
+
+                        <!-- Sanfona PCA V1..V28 -->
+                        <div class="mb-3">
+                            <button type="button" class="btn-secondary-custom btn-sm w-100 justify-content-between" onclick="togglePCA()" id="btnTogglePCA">
+                                <span class="d-flex align-items-center gap-2">
+                                    <svg class="icon" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                                    Componentes PCA (V1 a V28)
+                                </span>
+                                <span id="pcaStatusText" class="text-secondary small">Expandir &darr;</span>
+                            </button>
+                            <div id="pcaGridContainer" class="mt-2 p-2 card-custom" style="display: none; background: #070b16;">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small text-secondary font-mono" style="font-size: 0.72rem;">28 Variáveis Criptografadas</span>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm py-0 font-mono" style="font-size: 0.7rem;" onclick="zerarPCAs()">Zerar V1..V28</button>
+                                </div>
+                                <div class="row g-1" id="pcaInputsContainer"></div>
+                            </div>
+                        </div>
+
+                        <!-- Botão CTA Principal de Finalizar Compra -->
+                        <button id="btnFinalizarCompra" class="btn-cta w-100 py-3" onclick="processarCheckout()">
+                            <svg class="icon-lg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                            <span>Finalizar Compra e Processar Pagamento &rarr;</span>
+                        </button>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- ========================================== -->
-        <!-- TAB 2: MONITORAMENTO DE DRIFT & MLOPS -->
+        <!-- TAB 3: 3. CONCLUSÃO (RESULTADO SE FOI FRAUDE OU NÃO) -->
         <!-- ========================================== -->
-        <section id="tab-drift" role="tabpanel" aria-labelledby="tab-btn-drift" style="display: none;">
-            <div class="card-custom p-4 mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <h2 class="h5 mb-1 text-white fw-bold">Auditoria Contínua de Data Drift (Etapa 5 CRISP-DM)</h2>
-                        <p class="text-secondary small mb-0">Implementação em produção dos conceitos de MLOps do <strong>Slide 18</strong> (Prof. Dr. Sidney Ferrari).</p>
+        <section id="tab-conclusao" role="tabpanel" style="display: none;">
+            <!-- Contêiner do Resultado Preditivo -->
+            <div id="conclusaoContainer">
+                <div class="card-custom p-5 text-center my-4">
+                    <div class="mb-3 text-secondary">
+                        <svg class="icon-xl" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
                     </div>
-                    <span class="badge-status badge-info">
-                        <!-- Eye Icon -->
-                        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                        Agente Sentinela
-                    </span>
-                </div>
-
-                <div class="p-3 mb-4 rounded-3 border" style="background: var(--color-muted); border-color: var(--color-border) !important;">
-                    <p class="text-secondary small mb-1">
-                        Modelos em produção sofrem degradação por <strong>Data Drift</strong> (mudanças na distribuição dos atributos, ex.: inflação ou sazonalidade) e <strong>Concept Drift</strong> (novas estratégias de fraude).
-                    </p>
-                    <p class="text-secondary small mb-0 font-mono">
-                        Critérios formais: <strong>Teste Kolmogorov-Smirnov</strong> (deriva se p-value &lt; 0.05) e <strong>Population Stability Index (PSI)</strong> (deriva se PSI &ge; 0.20). Se &ge; 30% das features sofrerem desvio, aciona-se o gatilho de retreinamento.
-                    </p>
-                </div>
-
-                <!-- Botões de Ação de Auditoria -->
-                <div class="d-flex flex-wrap gap-3 mb-4">
-                    <button type="button" class="btn-secondary-custom flex-grow-1 py-3" onclick="executarAuditoria(false)" id="btnAuditarNormal">
-                        <!-- Check Circle Icon -->
-                        <svg class="icon text-success" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                        <span>Auditar Lote de Operação Normal (Baseline)</span>
-                    </button>
-                    <button type="button" class="btn-cta flex-grow-1 py-3" style="background: var(--color-warning); color: #000;" onclick="executarAuditoria(true)" id="btnAuditarAnomalia">
-                        <!-- Alert Triangle Icon -->
-                        <svg class="icon text-dark" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                        <span>Simular Anomalia Crítica / Black Friday (Drift)</span>
+                    <h3 class="h5 text-white fw-bold mb-2">Nenhuma transação avaliada ainda</h3>
+                    <p class="text-secondary small mb-3">Selecione um produto na Vitrine (Aba 1) e finalize a compra no Checkout (Aba 2) para visualizar o parecer antifraude.</p>
+                    <button type="button" class="btn-cta" onclick="switchTab('produtos')">
+                        <span>Ir para Selecionar Produto &rarr;</span>
                     </button>
                 </div>
+            </div>
 
-                <!-- Spinner Loading -->
-                <div id="driftLoading" class="text-center py-5" style="display: none;">
-                    <div class="spinner-border text-success mb-3" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
-                    <div class="text-white font-mono small">Executando Kolmogorov-Smirnov bicaudal (scipy.stats.ks_2samp) e buckets de PSI...</div>
-                    <div class="text-secondary small mt-1">Comparando distribuição histórica contra lote produtivo</div>
+            <!-- Seção Acadêmica e Governança CRISP-DM / Monitoramento de Drift (Slide 18) -->
+            <div class="card-custom p-4 mt-4" style="background: rgba(15, 23, 42, 0.5);">
+                <div class="d-flex justify-content-between align-items-center" style="cursor: pointer;" onclick="toggleCrispSecao()">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge-status badge-info">CRISP-DM MLOps</span>
+                        <h3 class="h6 mb-0 text-white fw-bold">Auditoria do Pipeline, Modelagem & Monitoramento de Data Drift</h3>
+                    </div>
+                    <span id="crispSecaoStatus" class="text-secondary small font-mono">Expandir Detalhes &darr;</span>
                 </div>
 
-                <!-- Tabela de Resultados Drift -->
-                <div id="driftResultadoCard" style="display: none;">
-                    <div id="alertBoxDrift" class="p-3 mb-4 rounded-3 border">
-                        <div class="d-flex align-items-center gap-3">
-                            <div id="alertDriftIcon"></div>
-                            <div>
-                                <h4 class="h6 mb-1 fw-bold" id="alertDriftTitle">--</h4>
-                                <p class="mb-0 small" id="alertDriftMsg">--</p>
+                <div id="crispSecaoBody" class="mt-3 pt-3 border-top" style="display: none; border-color: var(--color-border) !important;">
+                    <p class="text-secondary small mb-3">
+                        Implementação das etapas metodológicas do Projeto Integrador V ministrado pelo <strong>Prof. Dr. Sidney Carlos Ferrari</strong> (FATEC Ourinhos).
+                    </p>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <div class="card-custom p-3 h-100" style="background: var(--color-muted);">
+                                <span class="badge-status badge-info mb-1">Etapas 1 & 2</span>
+                                <h4 class="h6 text-white fw-bold">Negócio & Dados</h4>
+                                <p class="text-secondary small mb-0">284.807 transações da MegaLoja balanceadas via Under-sampling supervisionado (Cell 41).</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card-custom p-3 h-100" style="background: var(--color-muted);">
+                                <span class="badge-status badge-success mb-1">Etapas 3 & 4</span>
+                                <h4 class="h6 text-white fw-bold">Modelagem & Deploy</h4>
+                                <p class="text-secondary small mb-0">BaggingClassifier (10 Regressões Logísticas), modelo serializado com latência &lt; 15ms.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card-custom p-3 h-100" style="background: var(--color-muted);">
+                                <span class="badge-status badge-warning mb-1">Etapa 5 (Slide 18)</span>
+                                <h4 class="h6 text-white fw-bold">Drift & MLOps</h4>
+                                <p class="text-secondary small mb-0">Sentinela estatístico autônomo com teste Kolmogorov-Smirnov e cálculo de PSI.</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="table-responsive card-custom">
-                        <table class="table-custom">
-                            <thead>
-                                <tr>
-                                    <th>Variável Crítica</th>
-                                    <th>KS Statistic</th>
-                                    <th>p-value (KS)</th>
-                                    <th>PSI Score</th>
-                                    <th>Status Individual</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabelaDriftBody"></tbody>
-                        </table>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center text-secondary small font-mono mt-3 px-1">
-                        <span>Auditoria gravada em <code>drift_audit_report.json</code></span>
-                        <span>scipy.stats • pandas • numpy</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- TAB 3: ARQUITETURA CRISP-DM -->
-        <!-- ========================================== -->
-        <section id="tab-crisp" role="tabpanel" aria-labelledby="tab-btn-crisp" style="display: none;">
-            <div class="card-custom p-4 mb-4">
-                <h2 class="h5 mb-2 text-white fw-bold">Ciclo Metodológico Completo (CRISP-DM)</h2>
-                <p class="text-secondary small mb-4">
-                    Alinhamento formal com as diretrizes do Projeto Integrador V ministrado pelo Prof. Dr. Sidney Carlos Ferrari (FATEC Ourinhos).
-                </p>
-
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <div class="card-custom p-3 h-100" style="background: var(--color-muted);">
-                            <span class="badge-status badge-info mb-2">Etapa 1 & 2</span>
-                            <h3 class="h6 text-white fw-bold">Negócio & Dados</h3>
-                            <p class="text-secondary small mb-0">
-                                Diagnóstico de 284.807 transações da MegaLoja. Desbalanceamento extremo corrigido via Under-sampling supervisionado (Cell 41 do notebook de referência).
-                            </p>
+                    <!-- Botão para Teste de Auditoria de Drift ao vivo -->
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3 rounded mb-3" style="background: var(--color-primary); border: 1px solid var(--color-border);">
+                        <div>
+                            <strong class="text-white small">Executar Teste Estatístico de Deriva (Data Drift):</strong>
+                            <div class="text-secondary small">Compara a distribuição em produção com a baseline de treino (KS-test e PSI).</div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn-secondary-custom btn-sm font-mono" onclick="executarAuditoria(false)">Auditoria Normal</button>
+                            <button type="button" class="btn btn-outline-warning btn-sm font-mono" onclick="executarAuditoria(true)">Simular Anomalia</button>
                         </div>
                     </div>
 
-                    <div class="col-md-4">
-                        <div class="card-custom p-3 h-100" style="background: var(--color-muted);">
-                            <span class="badge-status badge-success mb-2">Etapa 3 & 4</span>
-                            <h3 class="h6 text-white fw-bold">Modelagem & Deploy</h3>
-                            <p class="text-secondary small mb-0">
-                                BaggingClassifier com 10 estimadores de Regressão Logística. Serialização ultra-leve (5 KB) compatível com Vercel Serverless (&lt; 15ms de tempo de resposta).
-                            </p>
-                        </div>
+                    <div id="driftLoading" class="text-center py-3" style="display: none;">
+                        <div class="spinner-border spinner-border-sm text-info" role="status"></div>
+                        <span class="text-secondary small ms-2">Calculando KS & PSI nas variáveis...</span>
                     </div>
 
-                    <div class="col-md-4">
-                        <div class="card-custom p-3 h-100" style="background: var(--color-muted);">
-                            <span class="badge-status badge-warning mb-2">Etapa 5 (Slide 18)</span>
-                            <h3 class="h6 text-white fw-bold">Monitoramento & MLOps</h3>
-                            <p class="text-secondary small mb-0">
-                                Sentinela estatístico autônomo com teste KS e cálculo de PSI. Alertas automáticos para disparo de esteira de retreinamento (CI/CD).
-                            </p>
+                    <div id="driftResultadoCard" class="mt-3" style="display: none;">
+                        <div id="alertBoxDrift" class="p-3 rounded border mb-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div id="alertDriftIcon"></div>
+                                <div>
+                                    <h5 id="alertDriftTitle" class="h6 mb-1 fw-bold"></h5>
+                                    <p id="alertDriftMsg" class="mb-0 small"></p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-
-                <div class="mt-4 pt-3 border-top" style="border-color: var(--color-border) !important;">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                        <span class="text-secondary small">Equipe de Desenvolvimento (Grupo 8): <strong>Alberto, Geovane, Gustavo</strong></span>
-                        <a href="https://github.com/AlbertoTotiJ/megaloja-fraud-detection/blob/main/RELATORIO_FINAL_CRISP_DM.md" target="_blank" class="text-info text-decoration-none small font-mono">
-                            Ler Relatório Acadêmico Completo (RELATORIO_FINAL_CRISP_DM.md) &rarr;
-                        </a>
+                        <div class="table-responsive">
+                            <table class="table-custom">
+                                <thead>
+                                    <tr>
+                                        <th>Variável</th>
+                                        <th>Estatística KS</th>
+                                        <th>p-value</th>
+                                        <th>PSI</th>
+                                        <th>Diagnóstico</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaDriftBody"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -804,23 +830,19 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         <footer class="mt-4 pt-3 border-top text-center text-secondary small" style="border-color: var(--color-border) !important;">
             <div class="d-flex flex-wrap justify-content-center gap-4 mb-2">
                 <a href="/checkout" class="text-success text-decoration-none d-inline-flex align-items-center gap-1 hover-white fw-bold">
-                    <!-- Shopping Bag Icon -->
-                    <svg class="icon text-success" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    <svg class="icon text-success" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                     Vitrine Checkout React (/checkout)
                 </a>
                 <a href="/docs" target="_blank" class="text-secondary text-decoration-none d-inline-flex align-items-center gap-1 hover-white">
-                    <!-- Book Open Icon -->
-                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                     Swagger Docs (/docs)
                 </a>
                 <a href="/drift" target="_blank" class="text-secondary text-decoration-none d-inline-flex align-items-center gap-1 hover-white">
-                    <!-- Activity Icon -->
-                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                     Endpoint Drift (/drift)
                 </a>
                 <a href="https://github.com/AlbertoTotiJ/megaloja-fraud-detection" target="_blank" class="text-secondary text-decoration-none d-inline-flex align-items-center gap-1 hover-white">
-                    <!-- Github Icon -->
-                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
                     GitHub Repository
                 </a>
             </div>
@@ -830,6 +852,87 @@ HTML_DASHBOARD = """<!DOCTYPE html>
     </main>
 
     <script>
+        // Catálogo de Produtos da Loja (Passo 1: Selecionar Produto)
+        const PRODUTOS = [
+            {
+                id: "prod-1",
+                nome: "Apple iPhone 15 Pro Max 256GB",
+                categoria: "Smartphones",
+                subtitulo: "Titânio Natural • OLED 6.7\" • Chip A17 Pro",
+                preco: 8999.00,
+                icone: `<svg class="icon-xl text-success" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>`,
+                badge: "MAIS VENDIDO"
+            },
+            {
+                id: "prod-2",
+                nome: "Notebook Gamer Dell G15",
+                categoria: "Computadores",
+                subtitulo: "Intel i7 • RTX 4050 • 16GB RAM • SSD 512GB",
+                preco: 6499.00,
+                icone: `<svg class="icon-xl text-info" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="2" y1="20" x2="22" y2="20"/></svg>`,
+                badge: "ALTA PERFORMANCE"
+            },
+            {
+                id: "prod-3",
+                nome: "Smart TV Samsung Neo QLED 65\" 4K",
+                categoria: "TV & Vídeo",
+                subtitulo: "120Hz • Mini LED • Neural Quantum 4K",
+                preco: 5299.00,
+                icone: `<svg class="icon-xl text-warning" viewBox="0 0 24 24"><rect width="20" height="15" x="2" y="3" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>`,
+                badge: "CINEMA EM CASA"
+            },
+            {
+                id: "prod-4",
+                nome: "Console PlayStation 5 Slim 1TB",
+                categoria: "Games",
+                subtitulo: "Controle DualSense • Edição Digital • Áudio 3D",
+                preco: 3799.00,
+                icone: `<svg class="icon-xl text-primary" style="color: #818cf8 !important;" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M15 9h2v6h-2z"/></svg>`,
+                badge: "GAMER"
+            },
+            {
+                id: "prod-5",
+                nome: "Headphone Sony WH-1000XM5 ANC",
+                categoria: "Áudio",
+                subtitulo: "Cancelamento Ativo de Ruído • Bateria 30h",
+                preco: 2199.00,
+                icone: `<svg class="icon-xl text-info" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>`,
+                badge: "OFERTA"
+            },
+            {
+                id: "prod-6",
+                nome: "Apple Watch Series 9 GPS 45mm",
+                categoria: "Wearables",
+                subtitulo: "Caixa Alumínio • Tela Retina • Sensor ECG",
+                preco: 3299.00,
+                icone: `<svg class="icon-xl text-success" viewBox="0 0 24 24"><rect width="12" height="16" x="6" y="4" rx="3"/><path d="M9 4V2h6v2M9 20v2h6v-2"/></svg>`,
+                badge: "PREMIUM"
+            },
+            {
+                id: "prod-7",
+                nome: "Monitor LG UltraWide 34\" Curvo",
+                categoria: "Monitores",
+                subtitulo: "144Hz • 1ms MBR • HDR10 • IPS sRGB 99%",
+                preco: 2499.00,
+                icone: `<svg class="icon-xl text-warning" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
+                badge: "PRODUTIVIDADE"
+            },
+            {
+                id: "prod-8",
+                nome: "Teclado Mecânico Keychron Pro RGB",
+                categoria: "Acessórios",
+                subtitulo: "Switches Hot-swap • Bluetooth 5.1 & USB-C",
+                preco: 549.00,
+                icone: `<svg class="icon-xl text-white" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="6" cy="10" r="1"/><circle cx="10" cy="10" r="1"/><circle cx="14" cy="10" r="1"/><circle cx="18" cy="10" r="1"/></svg>`,
+                badge: "ECONÔMICO"
+            }
+        ];
+
+        let produtoAtual = PRODUTOS[0];
+        let smsTimerInterval = null;
+        let smsTimeLeft = 299;
+        const EXPECTED_CODE = "849204";
+
         // Preset values da Fraude real (Cell 41 do notebook)
         const fraudValues = {
             Time: 406.0, Amount: 149.62,
@@ -855,7 +958,420 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             V23: -0.15, V24: 0.10, V25: 0.05, V26: 0.10, V27: 0.12, V28: -0.05
         };
 
-        let currentPCA = { ...fraudValues };
+        let currentPCA = { ...normalValues, Amount: produtoAtual.preco - 100.0 };
+
+        function formatarBRL(val) {
+            return Number(val).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function formatarTempoMMSS(secs) {
+            const m = Math.floor(Math.max(0, secs) / 60);
+            const s = Math.max(0, secs) % 60;
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        // Renderiza catálogo de produtos da Vitrine
+        function renderizarCatalogo() {
+            const container = document.getElementById('catalogoProdutosContainer');
+            container.innerHTML = '';
+            PRODUTOS.forEach(p => {
+                const col = document.createElement('div');
+                col.className = 'col-sm-6 col-lg-3';
+                const parcelas = Math.round(p.preco / 10);
+                col.innerHTML = `
+                    <div class="product-card">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge-status badge-info" style="font-size: 0.68rem;">${p.categoria}</span>
+                                <span class="badge-status badge-neutral" style="font-size: 0.65rem;">${p.badge}</span>
+                            </div>
+                            <div class="product-img-box">
+                                ${p.icone}
+                            </div>
+                            <h3 class="h6 text-white fw-bold mb-1">${p.nome}</h3>
+                            <p class="text-secondary small mb-3" style="font-size: 0.78rem; min-height: 38px;">${p.subtitulo}</p>
+                        </div>
+                        <div class="pt-2 border-top" style="border-color: var(--color-border) !important;">
+                            <div class="text-secondary small" style="font-size: 0.75rem;">À vista ou 10x sem juros:</div>
+                            <div class="h5 mb-2 font-mono text-white fw-bold">${formatarBRL(p.preco)}</div>
+                            <button type="button" class="btn-cta btn-sm w-100" onclick="selecionarProduto('${p.id}')">
+                                <span>Selecionar &rarr;</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(col);
+            });
+        }
+
+        // Seleciona um produto e vai para a aba 2 (Checkout)
+        function selecionarProduto(id) {
+            const p = PRODUTOS.find(item => item.id === id);
+            if (!p) return;
+            produtoAtual = p;
+
+            // Atualiza resumo no Checkout
+            document.getElementById('checkoutProdIcon').innerHTML = p.icone;
+            document.getElementById('checkoutProdNome').innerText = p.nome;
+            document.getElementById('checkoutProdSub').innerText = p.subtitulo;
+            document.getElementById('checkoutProdPreco').innerText = formatarBRL(p.preco);
+            const total = Math.max(10, p.preco - 100.0);
+            document.getElementById('checkoutProdTotal').innerText = formatarBRL(total);
+            document.getElementById('amount_val').value = total.toFixed(2);
+            currentPCA.Amount = total;
+
+            switchTab('checkout');
+        }
+
+        // Navegação de Abas
+        function switchTab(tabName) {
+            document.getElementById('tab-produtos').style.display = tabName === 'produtos' ? 'block' : 'none';
+            document.getElementById('tab-checkout').style.display = tabName === 'checkout' ? 'block' : 'none';
+            document.getElementById('tab-conclusao').style.display = tabName === 'conclusao' ? 'block' : 'none';
+
+            document.getElementById('tab-btn-produtos').classList.toggle('active', tabName === 'produtos');
+            document.getElementById('tab-btn-checkout').classList.toggle('active', tabName === 'checkout');
+            document.getElementById('tab-btn-conclusao').classList.toggle('active', tabName === 'conclusao');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Processa o Checkout e vai para a aba 3 (Conclusão)
+        async function processarCheckout() {
+            const btn = document.getElementById('btnFinalizarCompra');
+            btn.disabled = true;
+            btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Avaliando Risco Antifraude...`;
+
+            currentPCA.Time = parseFloat(document.getElementById('time_val').value) || 50000.0;
+            currentPCA.Amount = parseFloat(document.getElementById('amount_val').value) || (produtoAtual.preco - 100.0);
+
+            for (let i = 1; i <= 28; i++) {
+                const el = document.getElementById('pca_v' + i);
+                if (el) currentPCA['V' + i] = parseFloat(el.value) || 0.0;
+            }
+
+            const t0 = performance.now();
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(currentPCA)
+                });
+                const data = await response.json();
+                const t1 = performance.now();
+                const latencyMs = Math.round(t1 - t0);
+
+                // Renderiza o resultado na aba 3 (Conclusão)
+                renderizarConclusao(data, latencyMs);
+                switchTab('conclusao');
+            } catch (err) {
+                alert("Erro ao consultar o modelo de Machine Learning: " + err);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<svg class="icon-lg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg> <span>Finalizar Compra e Processar Pagamento &rarr;</span>`;
+            }
+        }
+
+        // Renderiza o resultado na Aba 3 (Conclusão): Se foi fraude ou não!
+        function renderizarConclusao(data, latencyMs) {
+            const container = document.getElementById('conclusaoContainer');
+            if (smsTimerInterval) clearInterval(smsTimerInterval);
+
+            const probPercent = (data.fraud_probability * 100).toFixed(2);
+            const totalFormatado = formatarBRL(currentPCA.Amount);
+
+            // CENÁRIO 1: FRAUDE CONFIRMADA (Score >= 0.75) -> AVISO VERMELHO
+            if (data.fraud_probability >= 0.75) {
+                container.innerHTML = `
+                    <div class="card-custom p-4 p-md-5 text-center border" style="background: rgba(239, 68, 68, 0.08); border-color: var(--color-destructive) !important; box-shadow: var(--shadow-glow-danger);">
+                        <div class="mb-3" style="color: var(--color-destructive);">
+                            <svg class="icon-xl" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        </div>
+                        <span class="badge-status badge-danger mb-2">BLOQUEIO PREVENTIVO IMEDIATO • FRAUDE DETECTADA</span>
+                        <h2 class="h3 text-danger fw-bold mb-2">Transação Negada por Política de Segurança</h2>
+                        <p class="text-secondary small mb-4" style="max-width: 650px; margin: 0 auto;">
+                            O motor antifraude identificou desvios comportamentais severos compatíveis com clonagem e ataque automatizado de cartões. A compra de <strong>${produtoAtual.nome}</strong> no valor de <strong>${totalFormatado}</strong> foi barrada em milissegundos.
+                        </p>
+
+                        <!-- Tabela de Auditoria do Bloqueio -->
+                        <div class="p-3 rounded mb-4 text-start font-mono small mx-auto" style="max-width: 650px; background: var(--color-primary); border: 1px solid var(--color-border);">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-secondary">Parecer do Modelo:</span>
+                                <strong class="text-danger">FRAUDE DETECTADA</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-secondary">Probabilidade Calculada:</span>
+                                <strong class="text-danger">${probPercent}%</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-secondary">Faixa de Risco:</span>
+                                <span class="text-danger">CRÍTICO (&ge; 75%)</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-secondary">Algoritmo em Operação:</span>
+                                <span class="text-white">${data.model_name || "BaggingClassifier (RL)"}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-secondary">Latência da Inferência:</span>
+                                <span class="text-white">${latencyMs} ms</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-secondary">Ação Automatizada:</span>
+                                <span class="text-white">Bloqueio Imediato &bull; Alerta de Segurança SIEM</span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap justify-content-center gap-3">
+                            <button type="button" class="btn-cta" onclick="switchTab('produtos')">
+                                <svg class="icon" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                                <span>Escolher Outro Produto (Voltar à Loja)</span>
+                            </button>
+                            <button type="button" class="btn-secondary-custom" onclick="switchTab('checkout')">
+                                <span>Alterar Cenário no Checkout</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // CENÁRIO 2: ZONA AMARELA / RISCO MÉDIO (50% a 74%) -> DESAFIO 2FA SMS COM TEMPORIZADOR
+            if (data.fraud_probability >= 0.50) {
+                smsTimeLeft = 299; // 04:59
+
+                container.innerHTML = `
+                    <div class="card-custom p-4 p-md-5 text-center border" id="card2fa" style="background: rgba(245, 158, 11, 0.08); border-color: var(--color-warning) !important; box-shadow: var(--shadow-glow-warning);">
+                        <div class="mb-3" style="color: var(--color-warning);">
+                            <svg class="icon-xl" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                        </div>
+                        <span class="badge-status badge-warning mb-2">AUTENTICAÇÃO EM 2 ETAPAS (2FA) • ZONA AMARELA</span>
+                        <h2 class="h4 text-white fw-bold mb-2">Atenção: Insira o código SMS enviado ao seu celular</h2>
+                        <p class="text-secondary small mb-3" style="max-width: 600px; margin: 0 auto;">
+                            Identificamos um padrão de compra atípico para o produto <strong>${produtoAtual.nome}</strong> (${totalFormatado}). Enviamos um código de 6 dígitos para o celular cadastrado com final <strong>(11) 98***-**42</strong>.
+                        </p>
+                        <div class="text-warning small font-mono mb-3" style="font-size: 0.8rem;">
+                            ⚠️ Qualquer código diferente do emitido ou o término do temporizador bloqueará a transação como fraude.
+                        </div>
+
+                        <!-- Formulário 2FA -->
+                        <div class="p-4 rounded mx-auto text-start" style="max-width: 480px; background: var(--color-primary); border: 1px solid var(--color-border);">
+                            <form onsubmit="confirmarSmsConclusao(event)">
+                                <div class="mb-3 text-center">
+                                    <label class="form-label text-secondary small font-mono mb-2">Código SMS de Verificação:</label>
+                                    <input
+                                        type="text"
+                                        id="inputSmsConclusao"
+                                        class="form-control-custom text-center fw-bold fs-4 py-2"
+                                        placeholder="Ex: 849204"
+                                        maxlength="6"
+                                        autofocus
+                                    />
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <button type="button" class="btn btn-link text-info text-decoration-none small p-0 font-mono" onclick="document.getElementById('inputSmsConclusao').value='849204'">
+                                        Preencher Código de Teste (849204)
+                                    </button>
+                                    <span class="small font-mono text-warning" id="smsTimerDisplay">
+                                        ⏱️ Expira em 04:59
+                                    </span>
+                                </div>
+
+                                <!-- Botão didático para forçar o timeout -->
+                                <div class="d-flex justify-content-between align-items-center mb-3 p-2 rounded" style="background: rgba(239, 68, 68, 0.08); border: 1px dashed rgba(239, 68, 68, 0.3);">
+                                    <span class="text-secondary small font-mono" style="font-size: 0.74rem;">Demonstração para o Professor:</span>
+                                    <button type="button" class="btn btn-sm btn-outline-danger font-mono py-0 px-2" style="font-size: 0.75rem;" onclick="simularTimeoutConclusao()">
+                                        ⏱️ Simular Timeout (0s)
+                                    </button>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn-secondary-custom flex-grow-1" onclick="switchTab('checkout')">
+                                        Voltar ao Checkout
+                                    </button>
+                                    <button type="submit" class="btn-cta flex-grow-1" style="background: var(--color-warning); color: #000;">
+                                        Confirmar Código SMS
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                `;
+
+                // Inicia o temporizador ativo regressivo
+                smsTimerInterval = setInterval(() => {
+                    smsTimeLeft--;
+                    const el = document.getElementById('smsTimerDisplay');
+                    if (el) {
+                        el.innerText = `⏱️ Expira em ${formatarTempoMMSS(smsTimeLeft)}`;
+                        if (smsTimeLeft <= 60) el.className = "small font-mono text-danger fw-bold";
+                    }
+                    if (smsTimeLeft <= 0) {
+                        clearInterval(smsTimerInterval);
+                        rejeitarFraudeConclusao("Tempo limite do código SMS expirado (00:00). Transação bloqueada preventivamente pela política de segurança.");
+                    }
+                }, 1000);
+
+                return;
+            }
+
+            // CENÁRIO 3: SCORE BAIXO (< 50%) -> PAGAMENTO APROVADO COM CHECK VERDE
+            container.innerHTML = `
+                <div class="card-custom p-4 p-md-5 text-center border" style="background: rgba(34, 197, 94, 0.08); border-color: var(--color-accent) !important; box-shadow: var(--shadow-glow-accent);">
+                    <div class="mb-3" style="color: var(--color-accent);">
+                        <svg class="icon-xl" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <span class="badge-status badge-success mb-2">SCORE SEGURO • AUTORIZADO</span>
+                    <h2 class="h3 text-success fw-bold mb-2">Pagamento Aprovado com Sucesso!</h2>
+                    <p class="text-secondary small mb-4" style="max-width: 650px; margin: 0 auto;">
+                        Transação autorizada com sucesso pelo emissor do cartão. O pedido do produto <strong>${produtoAtual.nome}</strong> no valor de <strong>${totalFormatado}</strong> foi confirmado e liberado para expedição imediata!
+                    </p>
+
+                    <!-- Tabela de Auditoria do Pedido Aprovado -->
+                    <div class="p-3 rounded mb-4 text-start font-mono small mx-auto" style="max-width: 650px; background: var(--color-primary); border: 1px solid var(--color-border);">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary">Status da Transação:</span>
+                            <strong class="text-success">APROVADA (NÃO É FRAUDE)</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary">Probabilidade de Fraude:</span>
+                            <strong class="text-success">${probPercent}%</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary">Limiar de Segurança:</span>
+                            <span class="text-white">50.00% (Abaixo do threshold)</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary">Modelo Antifraude:</span>
+                            <span class="text-white">${data.model_name || "BaggingClassifier (RL)"}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary">Tempo de Resposta:</span>
+                            <span class="text-white">${latencyMs} ms (Vercel Serverless)</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary">Código de Rastreio:</span>
+                            <span class="text-white">#ML-20261111-SEDEX</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap justify-content-center gap-3">
+                        <button type="button" class="btn-cta" onclick="switchTab('produtos')">
+                            <svg class="icon" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                            <span>Comprar Outro Produto (Voltar à Loja)</span>
+                        </button>
+                        <button type="button" class="btn-secondary-custom" onclick="switchTab('checkout')">
+                            <span>Ver Detalhes do Checkout</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Validação estrita do código SMS na Conclusão
+        function confirmarSmsConclusao(e) {
+            if (e) e.preventDefault();
+            const input = document.getElementById('inputSmsConclusao');
+            const code = (input ? input.value : "").trim();
+
+            if (smsTimerInterval) clearInterval(smsTimerInterval);
+
+            if (code === EXPECTED_CODE) {
+                // APROVAÇÃO COM SUCESSO!
+                const container = document.getElementById('conclusaoContainer');
+                const totalFormatado = formatarBRL(currentPCA.Amount);
+                container.innerHTML = `
+                    <div class="card-custom p-4 p-md-5 text-center border" style="background: rgba(34, 197, 94, 0.08); border-color: var(--color-accent) !important; box-shadow: var(--shadow-glow-accent);">
+                        <div class="mb-3" style="color: var(--color-accent);">
+                            <svg class="icon-xl" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <span class="badge-status badge-success mb-2">AUTENTICAÇÃO 2FA VALIDADA COM SUCESSO</span>
+                        <h2 class="h3 text-success fw-bold mb-2">Pagamento Aprovado!</h2>
+                        <p class="text-secondary small mb-4" style="max-width: 650px; margin: 0 auto;">
+                            Identidade do portador verificada com sucesso via token SMS 2FA (código <strong>849204</strong> validado). O pedido de <strong>${produtoAtual.nome}</strong> no valor de <strong>${totalFormatado}</strong> foi liberado para envio imediato!
+                        </p>
+
+                        <div class="p-3 rounded mb-4 text-start font-mono small mx-auto" style="max-width: 650px; background: var(--color-primary); border: 1px solid var(--color-border);">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-secondary">Status Final:</span>
+                                <strong class="text-success">LIBERADO APÓS 2FA</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-secondary">Token Validado:</span>
+                                <span class="text-white">849204 (SMS Seguro)</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-secondary">Expedição:</span>
+                                <span class="text-white">Emissão de Nota Fiscal e Coleta Sedex</span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap justify-content-center gap-3">
+                            <button type="button" class="btn-cta" onclick="switchTab('produtos')">
+                                <svg class="icon" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                                <span>Comprar Outro Produto (Voltar à Loja)</span>
+                            </button>
+                            <button type="button" class="btn-secondary-custom" onclick="switchTab('checkout')">
+                                <span>Voltar ao Checkout</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // QUALQUER OUTRO CÓDIGO INCORRETO -> FRAUDE IMEDIATA!
+                rejeitarFraudeConclusao(`Tentativa de Fraude Detectada: Código SMS digitado ("${code || 'vazio'}") é inválido e não confere com o token emitido.`);
+            }
+        }
+
+        function simularTimeoutConclusao() {
+            smsTimeLeft = 0;
+            if (smsTimerInterval) clearInterval(smsTimerInterval);
+            rejeitarFraudeConclusao("Tempo limite do código SMS expirado (00:00). Transação bloqueada preventivamente pela política de segurança.");
+        }
+
+        function rejeitarFraudeConclusao(motivo) {
+            if (smsTimerInterval) clearInterval(smsTimerInterval);
+            const container = document.getElementById('conclusaoContainer');
+            const totalFormatado = formatarBRL(currentPCA.Amount);
+
+            container.innerHTML = `
+                <div class="card-custom p-4 p-md-5 text-center border" style="background: rgba(239, 68, 68, 0.08); border-color: var(--color-destructive) !important; box-shadow: var(--shadow-glow-danger);">
+                    <div class="mb-3" style="color: var(--color-destructive);">
+                        <svg class="icon-xl" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <span class="badge-status badge-danger mb-2">FALHA NO DESAFIO 2FA • BLOQUEIO PREVENTIVO</span>
+                    <h2 class="h3 text-danger fw-bold mb-2">Transação Negada por Política de Segurança</h2>
+                    <p class="text-secondary small mb-4" style="max-width: 650px; margin: 0 auto;">
+                        ${motivo} A compra do produto <strong>${produtoAtual.nome}</strong> (${totalFormatado}) foi recusada e o cartão temporariamente suspenso para proteção do titular.
+                    </p>
+
+                    <div class="p-3 rounded mb-4 text-start font-mono small mx-auto" style="max-width: 650px; background: var(--color-primary); border: 1px solid var(--color-border);">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary">Diagnóstico Antifraude:</span>
+                            <strong class="text-danger">REJEITADO (FALHA DE AUTENTICAÇÃO)</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary">Classificação de Risco:</span>
+                            <span class="text-danger">CRÍTICO (Tentativa de Invasão de Conta)</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary">Decisão Automatizada:</span>
+                            <span class="text-white">Bloqueio Imediato &bull; Alerta SIEM Disparado</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap justify-content-center gap-3">
+                        <button type="button" class="btn-cta" onclick="switchTab('produtos')">
+                            <svg class="icon" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                            <span>Escolher Outro Produto (Voltar à Loja)</span>
+                        </button>
+                        <button type="button" class="btn-secondary-custom" onclick="switchTab('checkout')">
+                            <span>Tentar Outro Cenário no Checkout</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
 
         // Renderiza inputs das variáveis PCA
         function renderizarPCAInputs() {
@@ -891,20 +1407,22 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             const min = Math.floor((t % 3600) / 60);
             const sec = Math.floor(t % 60);
             const pad = (n) => String(n).padStart(2, '0');
-            document.getElementById('time_hora_display').innerText = `Horário estimado: ${pad(hour)}:${pad(min)}:${pad(sec)} (Hora ${hour})`;
+            document.getElementById('time_hora_display').innerText = `Horário: ${pad(hour)}:${pad(min)}:${pad(sec)} (Hora ${hour})`;
         }
 
         function carregarPreset(tipo) {
             document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+            const valorProduto = Math.max(10, produtoAtual.preco - 100.0);
+
             if (tipo === 'fraude') {
                 document.getElementById('chip-fraude').classList.add('active');
-                currentPCA = { ...fraudValues };
+                currentPCA = { ...fraudValues, Amount: valorProduto };
             } else if (tipo === 'normal') {
                 document.getElementById('chip-normal').classList.add('active');
-                currentPCA = { ...normalValues };
+                currentPCA = { ...normalValues, Amount: valorProduto };
             } else if (tipo === 'suspeita') {
                 document.getElementById('chip-suspeita').classList.add('active');
-                currentPCA = { ...suspeitaValues };
+                currentPCA = { ...suspeitaValues, Amount: valorProduto };
             }
 
             document.getElementById('time_val').value = currentPCA.Time;
@@ -929,90 +1447,15 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             }
         }
 
-        function switchTab(tabName) {
-            document.getElementById('tab-simulador').style.display = tabName === 'simulador' ? 'block' : 'none';
-            document.getElementById('tab-drift').style.display = tabName === 'drift' ? 'block' : 'none';
-            document.getElementById('tab-crisp').style.display = tabName === 'crisp' ? 'block' : 'none';
-
-            document.getElementById('tab-btn-simulador').classList.toggle('active', tabName === 'simulador');
-            document.getElementById('tab-btn-drift').classList.toggle('active', tabName === 'drift');
-            document.getElementById('tab-btn-crisp').classList.toggle('active', tabName === 'crisp');
-        }
-
-        async function avaliarTransacao() {
-            const btn = document.getElementById('btnAvaliar');
-            btn.disabled = true;
-            btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Avaliando Modelo...`;
-            const t0 = performance.now();
-
-            currentPCA.Time = parseFloat(document.getElementById('time_val').value) || 0;
-            currentPCA.Amount = parseFloat(document.getElementById('amount_val').value) || 0;
-
-            for (let i = 1; i <= 28; i++) {
-                const el = document.getElementById('pca_v' + i);
-                if (el) currentPCA['V' + i] = parseFloat(el.value) || 0;
-            }
-
-            try {
-                const response = await fetch('/predict', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(currentPCA)
-                });
-                const data = await response.json();
-                const t1 = performance.now();
-                const latencyMs = Math.round(t1 - t0);
-
-                const probPercent = (data.fraud_probability * 100).toFixed(2);
-                const probElem = document.getElementById('probDisplay');
-                probElem.innerText = probPercent + "%";
-
-                const gaugeBar = document.getElementById('gaugeBar');
-                gaugeBar.style.width = Math.min(Math.max(probPercent, 5), 100) + "%";
-
-                const banner = document.getElementById('decisaoBanner');
-                const titulo = document.getElementById('decisaoTitulo');
-                const desc = document.getElementById('decisaoDesc');
-                const iconContainer = document.getElementById('decisIncone');
-
-                if (data.fraud_probability >= 0.75) {
-                    probElem.style.color = "var(--color-destructive)";
-                    gaugeBar.style.backgroundColor = "var(--color-destructive)";
-                    banner.style.borderColor = "var(--color-destructive)";
-                    banner.style.background = "rgba(239, 68, 68, 0.1)";
-                    titulo.className = "h6 mb-1 fw-bold text-danger";
-                    titulo.innerText = "BLOQUEIO PREVENTIVO IMEDIATO";
-                    desc.innerText = data.recommendation;
-                    iconContainer.innerHTML = `<svg class="icon-lg text-danger" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
-                } else if (data.is_fraud) {
-                    probElem.style.color = "var(--color-warning)";
-                    gaugeBar.style.backgroundColor = "var(--color-warning)";
-                    banner.style.borderColor = "var(--color-warning)";
-                    banner.style.background = "rgba(245, 158, 11, 0.1)";
-                    titulo.className = "h6 mb-1 fw-bold text-warning";
-                    titulo.innerText = "VERIFICAÇÃO ADICIONAL DE SEGURANÇA (2FA)";
-                    desc.innerText = data.recommendation;
-                    iconContainer.innerHTML = `<svg class="icon-lg text-warning" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
-                } else {
-                    probElem.style.color = "var(--color-accent)";
-                    gaugeBar.style.backgroundColor = "var(--color-accent)";
-                    banner.style.borderColor = "var(--color-accent)";
-                    banner.style.background = "rgba(34, 197, 94, 0.1)";
-                    titulo.className = "h6 mb-1 fw-bold text-success";
-                    titulo.innerText = "TRANSAÇÃO APROVADA";
-                    desc.innerText = data.recommendation;
-                    iconContainer.innerHTML = `<svg class="icon-lg text-success" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
-                }
-
-                document.getElementById('metaLatencia').innerText = `Latência: ${latencyMs} ms`;
-                document.getElementById('resModeloNome').innerText = data.model_name;
-                document.getElementById('resultadoCard').style.display = 'block';
-                document.getElementById('resultadoCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            } catch (err) {
-                alert("Erro ao consultar API de predição: " + err);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<svg class="icon-lg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg> <span>Avaliar Transação em Tempo Real</span>`;
+        function toggleCrispSecao() {
+            const body = document.getElementById('crispSecaoBody');
+            const status = document.getElementById('crispSecaoStatus');
+            if (body.style.display === 'none') {
+                body.style.display = 'block';
+                status.innerHTML = 'Recolher Detalhes &uarr;';
+            } else {
+                body.style.display = 'none';
+                status.innerHTML = 'Expandir Detalhes &darr;';
             }
         }
 
@@ -1035,7 +1478,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                     title.className = "h6 mb-1 fw-bold text-danger";
                     title.innerText = "ALERTA DE DEGRAVAÇÃO POPULACIONAL (DATA DRIFT DETECTADO)";
                     msg.className = "mb-0 small text-light";
-                    msg.innerText = `${data.recommendation} — (${data.variables_in_drift} de ${data.total_variables_analyzed} variáveis críticas com p < 0.05 / PSI >= 0.20).`;
+                    msg.innerText = `${data.recommendation} — (${data.variables_in_drift} de ${data.total_variables_analyzed} variáveis com p < 0.05 / PSI >= 0.20).`;
                     icon.innerHTML = `<svg class="icon-xl text-danger" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
                 } else {
                     alertBox.style.background = "rgba(34, 197, 94, 0.15)";
@@ -1075,10 +1518,12 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             }
         }
 
-        // Inicialização
+        // Inicialização ao carregar a página
         document.addEventListener('DOMContentLoaded', () => {
+            renderizarCatalogo();
             renderizarPCAInputs();
-            atualizarHoraEstimada();
+            selecionarProduto('prod-1');
+            switchTab('produtos');
         });
     </script>
 </body>
