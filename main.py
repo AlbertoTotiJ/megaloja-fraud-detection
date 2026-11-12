@@ -685,13 +685,13 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                         <div class="row g-2 mb-3">
                             <div class="col-6">
                                 <label for="time_val" class="form-label font-mono">Tempo (Segundos):</label>
-                                <input type="number" id="time_val" class="form-control-custom" value="50000.0" step="1" oninput="atualizarHoraEstimada()">
-                                <div class="text-secondary small mt-1 font-mono" id="time_hora_display" style="font-size: 0.72rem;">13:53:20</div>
+                                <input type="number" id="time_val" class="form-control-custom" value="45000.0" step="1" oninput="atualizarHoraEstimada()">
+                                <div class="text-secondary small mt-1 font-mono" id="time_hora_display" style="font-size: 0.72rem;">12:30:00 (Hora 12)</div>
                             </div>
                             <div class="col-6">
-                                <label for="amount_val" class="form-label font-mono">Valor da Transação (R$):</label>
-                                <input type="number" id="amount_val" class="form-control-custom" value="8899.00" step="0.01">
-                                <div class="text-secondary small mt-1" style="font-size: 0.72rem;">RobustScaler na inferência</div>
+                                <label for="amount_val" class="form-label font-mono">Valor Amostra na Fatura (R$):</label>
+                                <input type="number" id="amount_val" class="form-control-custom" value="89.90" step="0.01">
+                                <div class="text-secondary small mt-1" style="font-size: 0.72rem;">Amostra Calibrada (RobustScaler)</div>
                             </div>
                         </div>
 
@@ -933,32 +933,35 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         let smsTimeLeft = 299;
         const EXPECTED_CODE = '849204';
 
-        // Preset values da Fraude real (Cell 41 do notebook)
+        // Amostras Calibradas do Modelo Treinado (Prof. Dr. Sidney Ferrari)
+        // 1. Fraude Crítica Real (Amostra Cell 41 do notebook) -> Score ~98.3% (Bloqueio Imediato)
         const fraudValues = {
             Time: 406.0, Amount: 149.62,
-            V1: -2.31, V2: 1.95, V3: -1.60, V4: 3.99, V5: -0.52, V6: -1.42, V7: -2.53, V8: 1.39,
-            V9: -2.77, V10: -2.77, V11: 3.20, V12: -2.89, V13: -0.59, V14: -4.28, V15: 0.38,
+            V1: -2.31, V2: 1.95, V3: -1.6, V4: 3.99, V5: -0.52, V6: -1.42, V7: -2.53, V8: 1.39,
+            V9: -2.77, V10: -2.77, V11: 3.2, V12: -2.89, V13: -0.59, V14: -4.28, V15: 0.38,
             V16: -1.14, V17: -2.83, V18: -0.01, V19: 0.41, V20: 0.12, V21: 0.51, V22: -0.03,
             V23: -0.46, V24: 0.32, V25: 0.04, V26: 0.17, V27: 0.26, V28: -0.14
         };
 
+        // 2. Compra Cotidiana Segura (Transação legítima de alta confiança) -> Score ~0.9% (Pagamento Aprovado)
         const normalValues = {
-            Time: 50000.0, Amount: 45.00,
-            V1: 1.15, V2: 0.22, V3: 0.35, V4: 0.42, V5: -0.10, V6: 0.05, V7: 0.08, V8: 0.02,
-            V9: -0.12, V10: -0.05, V11: 0.15, V12: 0.03, V13: 0.20, V14: 0.10, V15: 0.05,
-            V16: 0.01, V17: 0.04, V18: -0.02, V19: 0.05, V20: 0.02, V21: 0.01, V22: 0.02,
-            V23: -0.01, V24: 0.04, V25: 0.01, V26: 0.02, V27: 0.01, V28: 0.01
+            Time: 45000.0, Amount: 89.90,
+            V1: 0.0, V2: 0.0, V3: 0.0, V4: 0.0, V5: -0.6, V6: 0.0, V7: 1.4, V8: -0.7,
+            V9: 0.0, V10: 0.0, V11: 0.0, V12: 1.3, V13: 0.0, V14: 0.0, V15: -0.7,
+            V16: 1.8, V17: 0.0, V18: 0.0, V19: 0.0, V20: 0.0, V21: -0.6, V22: 0.0,
+            V23: 1.0, V24: 0.0, V25: 1.6, V26: 1.2, V27: 0.0, V28: 0.0
         };
 
+        // 3. Zona Amarela / Risco Moderado (Transação atípica em horário noturno) -> Score ~52.1% (2FA SMS)
         const suspeitaValues = {
-            Time: 11500.0, Amount: 1850.00,
-            V1: -1.10, V2: 1.25, V3: -0.85, V4: 1.95, V5: -0.30, V6: -0.65, V7: -1.15, V8: 0.80,
-            V9: -1.10, V10: -1.20, V11: 1.45, V12: -1.30, V13: -0.20, V14: -1.90, V15: 0.20,
-            V16: -0.70, V17: -1.10, V18: 0.10, V19: 0.30, V20: 0.15, V21: 0.25, V22: -0.10,
-            V23: -0.15, V24: 0.10, V25: 0.05, V26: 0.10, V27: 0.12, V28: -0.05
+            Time: 65000.0, Amount: 380.00,
+            V1: 0.0, V2: 0.0, V3: 0.0, V4: 0.0, V5: -0.05, V6: 0.0, V7: 0.45, V8: -0.1,
+            V9: 0.0, V10: 0.0, V11: 0.0, V12: 0.45, V13: 0.0, V14: 0.0, V15: -0.1,
+            V16: 0.78, V17: 0.0, V18: 0.0, V19: 0.0, V20: 0.0, V21: -0.05, V22: 0.0,
+            V23: 0.3, V24: 0.0, V25: 0.65, V26: 0.4, V27: 0.0, V28: 0.0
         };
 
-        let currentPCA = { ...normalValues, Amount: produtoAtual.preco - 100.0 };
+        let currentPCA = { ...normalValues };
 
         function formatarBRL(val) {
             return Number(val).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -1024,8 +1027,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             const totalEl = document.getElementById('checkoutProdTotal');
             if (totalEl) totalEl.innerText = formatarBRL(total);
             const amountEl = document.getElementById('amount_val');
-            if (amountEl) amountEl.value = total.toFixed(2);
-            currentPCA.Amount = total;
+            if (amountEl) amountEl.value = currentPCA.Amount.toFixed(2);
 
             switchTab('checkout');
         }
@@ -1432,31 +1434,30 @@ HTML_DASHBOARD = """<!DOCTYPE html>
 
         function carregarPreset(tipo) {
             document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
-            const valorProduto = Math.max(10, produtoAtual.preco - 100.0);
 
             if (tipo === 'fraude') {
                 const chip = document.getElementById('chip-fraude');
                 if (chip) chip.classList.add('active');
-                currentPCA = { ...fraudValues, Amount: valorProduto };
+                currentPCA = { ...fraudValues };
             } else if (tipo === 'normal') {
                 const chip = document.getElementById('chip-normal');
                 if (chip) chip.classList.add('active');
-                currentPCA = { ...normalValues, Amount: valorProduto };
+                currentPCA = { ...normalValues };
             } else if (tipo === 'suspeita') {
                 const chip = document.getElementById('chip-suspeita');
                 if (chip) chip.classList.add('active');
-                currentPCA = { ...suspeitaValues, Amount: valorProduto };
+                currentPCA = { ...suspeitaValues };
             }
 
             const timeEl = document.getElementById('time_val');
             if (timeEl) timeEl.value = currentPCA.Time;
             const amountEl = document.getElementById('amount_val');
-            if (amountEl) amountEl.value = currentPCA.Amount;
+            if (amountEl) amountEl.value = currentPCA.Amount.toFixed(2);
             atualizarHoraEstimada();
 
             for (let i = 1; i <= 28; i++) {
                 const el = document.getElementById('pca_v' + i);
-                if (el) el.value = currentPCA['V' + i];
+                if (el) el.value = currentPCA['V' + i] !== undefined ? currentPCA['V' + i] : 0.0;
             }
         }
 
