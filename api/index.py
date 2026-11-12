@@ -624,19 +624,24 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                         <div class="virtual-card">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div class="chip-sim"></div>
-                                <span class="font-mono small text-secondary">CARTÃO VIRTUAL</span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="font-mono small text-secondary">CARTÃO VIRTUAL</span>
+                                    <button type="button" class="btn btn-link text-info text-decoration-none p-0 font-mono" onclick="sortearNovoCartao()" title="Sortear novo cartão e titular" style="font-size: 0.72rem;">
+                                        ⟳ Sortear
+                                    </button>
+                                </div>
                             </div>
                             <div class="font-mono fs-5 fw-bold mb-2 text-white" style="letter-spacing: 2px;">
-                                •••• •••• •••• 4242
+                                •••• •••• •••• <span id="cardUltimosDigitos">7842</span>
                             </div>
                             <div class="d-flex justify-content-between align-items-end font-mono small">
                                 <div>
                                     <span class="text-secondary" style="font-size: 0.65rem; display: block;">TITULAR</span>
-                                    <span class="text-white fw-bold">ALBERTO T FERRARI</span>
+                                    <span class="text-white fw-bold" id="cardTitularNome">MARIANA R SILVA</span>
                                 </div>
                                 <div>
                                     <span class="text-secondary" style="font-size: 0.65rem; display: block;">VALIDADE</span>
-                                    <span class="text-white">11/29</span>
+                                    <span class="text-white" id="cardValidade">11/29</span>
                                 </div>
                             </div>
                         </div>
@@ -915,6 +920,84 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         let smsTimeLeft = 299;
         const EXPECTED_CODE = '849204';
 
+        // Pool de Titulares e Sobrenomes Brasileiros (Isentos dos autores e do professor)
+        const NOMES_TITULARES = [
+            'MARIANA R SILVA',
+            'LUCAS M OLIVEIRA',
+            'BEATRIZ C SOUZA',
+            'RODRIGO A PEREIRA',
+            'JULIANA F SANTOS',
+            'GABRIEL H LIMA',
+            'CAMILA B CARVALHO',
+            'FELIPE N RIBEIRO',
+            'LARISSA K ALMEIDA',
+            'THIAGO V GOMES',
+            'LETICIA D MARTINS',
+            'MATHEUS E ROCHA',
+            'VANESSA P BARBOSA',
+            'BRUNO L CARDOSO',
+            'ISABELA T NASCIMENTO',
+            'DIEGO S MOREIRA',
+            'FERNANDA J CASTRO',
+            'RAFAEL O TEIXEIRA',
+            'AMANDA V FREITAS',
+            'LEONARDO C PINTO',
+            'PATRICIA M ANDRADE',
+            'GUSTAVO E DIAS',
+            'CAROLINA B MOURA',
+            'VINICIUS S ARAUJO',
+            'RENATA F NOGUEIRA'
+        ];
+
+        const VALIDADES_CARTAO = [
+            '03/28', '06/28', '09/28', '11/28',
+            '02/29', '05/29', '08/29', '11/29',
+            '04/30', '07/30', '10/30', '12/30',
+            '03/31', '06/31', '09/31', '12/31'
+        ];
+
+        let cartaoAtual = {
+            titular: 'MARIANA R SILVA',
+            final: '7842',
+            validade: '11/29'
+        };
+
+        function sortearNovoCartao() {
+            let novoTitular;
+            do {
+                const idx = Math.floor(Math.random() * NOMES_TITULARES.length);
+                novoTitular = NOMES_TITULARES[idx];
+            } while (novoTitular === cartaoAtual.titular && NOMES_TITULARES.length > 1);
+
+            let novoFinal;
+            do {
+                novoFinal = String(Math.floor(1000 + Math.random() * 9000));
+            } while (novoFinal === cartaoAtual.final);
+
+            let novaValidade;
+            do {
+                const idxV = Math.floor(Math.random() * VALIDADES_CARTAO.length);
+                novaValidade = VALIDADES_CARTAO[idxV];
+            } while (novaValidade === cartaoAtual.validade && VALIDADES_CARTAO.length > 1);
+
+            cartaoAtual = {
+                titular: novoTitular,
+                final: novoFinal,
+                validade: novaValidade
+            };
+
+            const titularEl = document.getElementById('cardTitularNome');
+            if (titularEl) titularEl.innerText = cartaoAtual.titular;
+
+            const finalEl = document.getElementById('cardUltimosDigitos');
+            if (finalEl) finalEl.innerText = cartaoAtual.final;
+
+            const validadeEl = document.getElementById('cardValidade');
+            if (validadeEl) validadeEl.innerText = cartaoAtual.validade;
+
+            return cartaoAtual;
+        }
+
         // Amostras Calibradas do Modelo Treinado (Prof. Dr. Sidney Ferrari)
         // 1. Fraude Crítica Real (Amostra Cell 41 do notebook) -> Score ~98.3% (Bloqueio Imediato)
         const fraudValues = {
@@ -994,6 +1077,9 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             const p = PRODUTOS.find(item => item.id === id);
             if (!p) return;
             produtoAtual = p;
+
+            // Sorteia novo titular e final de cartão a cada nova compra (sempre diferente da anterior)
+            sortearNovoCartao();
 
             // Atualiza resumo no Checkout
             const iconEl = document.getElementById('checkoutProdIcon');
@@ -1091,7 +1177,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                         <span class="badge-status badge-danger mb-2">BLOQUEIO PREVENTIVO IMEDIATO • FRAUDE DETECTADA</span>
                         <h2 class="h3 text-danger fw-bold mb-2">Transação Negada por Política de Segurança</h2>
                         <p class="text-secondary small mb-4" style="max-width: 650px; margin: 0 auto;">
-                            O motor antifraude identificou desvios comportamentais severos compatíveis com clonagem e ataque automatizado de cartões. A compra de <strong>${produtoAtual.nome}</strong> no valor de <strong>${totalFormatado}</strong> foi barrada em milissegundos.
+                            O motor antifraude identificou desvios comportamentais severos compatíveis com clonagem e ataque automatizado de cartões. A compra de <strong>${produtoAtual.nome}</strong> (${totalFormatado}) para o titular <strong>${cartaoAtual.titular}</strong> (Cartão •••• ${cartaoAtual.final}) foi barrada em milissegundos.
                         </p>
 
                         <!-- Tabela de Auditoria do Bloqueio -->
@@ -1099,6 +1185,10 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                             <div class="d-flex justify-content-between mb-1">
                                 <span class="text-secondary">Parecer do Modelo:</span>
                                 <strong class="text-danger">FRAUDE DETECTADA</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-secondary">Cartão Monitorado:</span>
+                                <span class="text-danger">•••• •••• •••• ${cartaoAtual.final} (${cartaoAtual.titular})</span>
                             </div>
                             <div class="d-flex justify-content-between mb-1">
                                 <span class="text-secondary">Probabilidade Calculada:</span>
@@ -1148,7 +1238,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                         <span class="badge-status badge-warning mb-2">AUTENTICAÇÃO EM 2 ETAPAS (2FA) • ZONA AMARELA</span>
                         <h2 class="h4 text-white fw-bold mb-2">Atenção: Insira o código SMS enviado ao seu celular</h2>
                         <p class="text-secondary small mb-3" style="max-width: 600px; margin: 0 auto;">
-                            Identificamos um padrão de compra atípico para o produto <strong>${produtoAtual.nome}</strong> (${totalFormatado}). Enviamos um código de 6 dígitos para o celular cadastrado com final <strong>(11) 98***-**42</strong>.
+                            Identificamos um padrão de compra atípico para o titular <strong>${cartaoAtual.titular}</strong> (Cartão final <strong>•••• ${cartaoAtual.final}</strong>). Enviamos um código de 6 dígitos para o celular cadastrado com final <strong>(11) 98***-**${cartaoAtual.final.slice(-2)}</strong>.
                         </p>
                         <div class="text-warning small font-mono mb-3" style="font-size: 0.8rem;">
                             ⚠️ Qualquer código diferente do emitido ou o término do temporizador bloqueará a transação como fraude.
@@ -1225,7 +1315,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                     <span class="badge-status badge-success mb-2">SCORE SEGURO • AUTORIZADO</span>
                     <h2 class="h3 text-success fw-bold mb-2">Pagamento Aprovado com Sucesso!</h2>
                     <p class="text-secondary small mb-4" style="max-width: 650px; margin: 0 auto;">
-                        Transação autorizada com sucesso pelo emissor do cartão. O pedido do produto <strong>${produtoAtual.nome}</strong> no valor de <strong>${totalFormatado}</strong> foi confirmado e liberado para expedição imediata!
+                        Transação autorizada com sucesso pelo emissor para o titular <strong>${cartaoAtual.titular}</strong> (Cartão •••• ${cartaoAtual.final}). O pedido de <strong>${produtoAtual.nome}</strong> no valor de <strong>${totalFormatado}</strong> foi confirmado e liberado para expedição imediata!
                     </p>
 
                     <!-- Tabela de Auditoria do Pedido Aprovado -->
@@ -1233,6 +1323,10 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                         <div class="d-flex justify-content-between mb-1">
                             <span class="text-secondary">Status da Transação:</span>
                             <strong class="text-success">APROVADA (NÃO É FRAUDE)</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary">Titular & Cartão:</span>
+                            <span class="text-white">${cartaoAtual.titular} (•••• ${cartaoAtual.final})</span>
                         </div>
                         <div class="d-flex justify-content-between mb-1">
                             <span class="text-secondary">Probabilidade de Fraude:</span>
@@ -1289,7 +1383,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                         <span class="badge-status badge-success mb-2">AUTENTICAÇÃO 2FA VALIDADA COM SUCESSO</span>
                         <h2 class="h3 text-success fw-bold mb-2">Pagamento Aprovado!</h2>
                         <p class="text-secondary small mb-4" style="max-width: 650px; margin: 0 auto;">
-                            Identidade do portador verificada com sucesso via token SMS 2FA (código <strong>849204</strong> validado). O pedido de <strong>${produtoAtual.nome}</strong> no valor de <strong>${totalFormatado}</strong> foi liberado para envio imediato!
+                            Identidade do titular <strong>${cartaoAtual.titular}</strong> (Cartão final •••• ${cartaoAtual.final}) verificada com sucesso via token SMS 2FA. O pedido de <strong>${produtoAtual.nome}</strong> no valor de <strong>${totalFormatado}</strong> foi liberado para envio imediato!
                         </p>
 
                         <div class="p-3 rounded mb-4 text-start font-mono small mx-auto" style="max-width: 650px; background: var(--color-primary); border: 1px solid var(--color-border);">
@@ -1343,7 +1437,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                     <span class="badge-status badge-danger mb-2">FALHA NO DESAFIO 2FA • BLOQUEIO PREVENTIVO</span>
                     <h2 class="h3 text-danger fw-bold mb-2">Transação Negada por Política de Segurança</h2>
                     <p class="text-secondary small mb-4" style="max-width: 650px; margin: 0 auto;">
-                        ${motivo} A compra do produto <strong>${produtoAtual.nome}</strong> (${totalFormatado}) foi recusada e o cartão temporariamente suspenso para proteção do titular.
+                        ${motivo} A compra do produto <strong>${produtoAtual.nome}</strong> (${totalFormatado}) foi recusada e o cartão final <strong>${cartaoAtual.final}</strong> do titular <strong>${cartaoAtual.titular}</strong> foi preventivamente bloqueado.
                     </p>
 
                     <div class="p-3 rounded mb-4 text-start font-mono small mx-auto" style="max-width: 650px; background: var(--color-primary); border: 1px solid var(--color-border);">
@@ -1545,6 +1639,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
 
         // Inicialização ao carregar a página
         function inicializarLoja() {
+            sortearNovoCartao();
             renderizarCatalogo();
             renderizarPCAInputs();
             selecionarProduto('prod-1');
