@@ -828,24 +828,6 @@ HTML_DASHBOARD = """<!DOCTYPE html>
 
         <!-- Footer -->
         <footer class="mt-4 pt-3 border-top text-center text-secondary small" style="border-color: var(--color-border) !important;">
-            <div class="d-flex flex-wrap justify-content-center gap-4 mb-2">
-                <a href="/checkout" class="text-success text-decoration-none d-inline-flex align-items-center gap-1 hover-white fw-bold">
-                    <svg class="icon text-success" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                    Vitrine Checkout React (/checkout)
-                </a>
-                <a href="/docs" target="_blank" class="text-secondary text-decoration-none d-inline-flex align-items-center gap-1 hover-white">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                    Swagger Docs (/docs)
-                </a>
-                <a href="/drift" target="_blank" class="text-secondary text-decoration-none d-inline-flex align-items-center gap-1 hover-white">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                    Endpoint Drift (/drift)
-                </a>
-                <a href="https://github.com/AlbertoTotiJ/megaloja-fraud-detection" target="_blank" class="text-secondary text-decoration-none d-inline-flex align-items-center gap-1 hover-white">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
-                    GitHub Repository
-                </a>
-            </div>
             <p class="mb-0 font-mono" style="font-size: 0.75rem;">MegaLoja S.A. • FATEC Ourinhos • Projeto Integrador V • 2026</p>
         </footer>
 
