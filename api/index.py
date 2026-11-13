@@ -379,6 +379,35 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         .badge-info { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
         .badge-neutral { background: var(--color-muted); color: var(--color-muted-foreground); border: 1px solid var(--color-border); }
 
+        .badge-pill-custom {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: 'Fira Code', monospace;
+        }
+        .badge-green { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .badge-yellow { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-red { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-blue { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .form-select-custom {
+            background: var(--color-primary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            color: var(--color-foreground);
+            font-family: 'Fira Code', monospace;
+            padding: 8px 12px;
+            width: 100%;
+        }
+        .form-select-custom:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
+        }
+
         /* Pulse dot */
         .pulse-dot {
             width: 8px;
@@ -648,81 +677,86 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                     </div>
                 </div>
 
-                <!-- Coluna 2: Injeção de Risco Antifraude & Finalizar Compra -->
+                <!-- Coluna 2: A INJEÇÃO DE DADOS (OS BASTIDORES) & FINALIZAR COMPRA -->
                 <div class="col-lg-6">
                     <div class="card-custom p-4 mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style="border-color: var(--color-border) !important;">
-                            <div>
-                                <h3 class="h6 mb-0 text-white fw-bold">Perfil de Risco da Transação</h3>
-                                <span class="text-secondary small">Selecione o comportamento para testar a reação</span>
-                            </div>
-                            <span class="badge-status badge-info">FastAPI ML</span>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h3 class="h6 mb-0 text-white fw-bold d-flex align-items-center gap-2">
+                                <svg class="icon text-info" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                                Injeção de Dados (15 Amostras do Dataset)
+                            </h3>
+                            <span class="badge-pill-custom badge-neutral font-mono" id="badgeModoInjecao">Modo: Sorteio</span>
                         </div>
 
-                        <!-- Cenários Pré-configurados -->
-                        <div class="d-flex flex-column gap-2 mb-3">
-                            <button type="button" class="preset-chip active" id="chip-normal" onclick="carregarPreset('normal')">
-                                <div class="d-flex align-items-center gap-2 mb-1">
-                                    <svg class="icon text-success" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                                    <strong class="text-white small">🟢 Compra Habitual Segura (Score &lt; 50%)</strong>
-                                </div>
-                                <div class="text-secondary small font-mono">Cliente habitual • Horário comercial • Cartão verificado</div>
-                            </button>
+                        <p class="text-secondary small mb-3">
+                            Cada clique envia aos bastidores uma transação com <strong>Time, Amount e V1 a V28</strong> diretamente para o modelo.
+                        </p>
 
-                            <button type="button" class="preset-chip" id="chip-suspeita" onclick="carregarPreset('suspeita')">
-                                <div class="d-flex align-items-center gap-2 mb-1">
-                                    <svg class="icon text-warning" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                                    <strong class="text-white small">🟡 Zona Amarela / Risco Médio (Desafio 2FA SMS)</strong>
-                                </div>
-                                <div class="text-secondary small font-mono">Score 50% a 74% • Compra noturna • Requer SMS com temporizador</div>
+                        <!-- Seletor de Modo -->
+                        <div class="d-flex gap-2 mb-3">
+                            <button
+                                type="button"
+                                id="btnModoRandom"
+                                class="btn-secondary-custom flex-grow-1 small border-success text-white"
+                                onclick="setModoInjecao('random')"
+                            >
+                                🎲 Sorteio Aleatório (Padrão)
                             </button>
-
-                            <button type="button" class="preset-chip" id="chip-fraude" onclick="carregarPreset('fraude')">
-                                <div class="d-flex align-items-center gap-2 mb-1">
-                                    <svg class="icon text-danger" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                                    <strong class="text-white small">🔴 Tentativa de Fraude Crítica (Score &ge; 75%)</strong>
-                                </div>
-                                <div class="text-secondary small font-mono">Padrões Cell 41 • Madrugada • Bloqueio imediato por segurança</div>
+                            <button
+                                type="button"
+                                id="btnModoManual"
+                                class="btn-secondary-custom flex-grow-1 small"
+                                onclick="setModoInjecao('manual')"
+                            >
+                                🎯 Seleção Didática Manual
                             </button>
                         </div>
 
-                        <!-- Parâmetros brutos -->
-                        <div class="row g-2 mb-3">
-                            <div class="col-6">
-                                <label for="time_val" class="form-label font-mono">Tempo (Segundos):</label>
-                                <input type="number" id="time_val" class="form-control-custom" value="45000.0" step="1" oninput="atualizarHoraEstimada()">
-                                <div class="text-secondary small mt-1 font-mono" id="time_hora_display" style="font-size: 0.72rem;">12:30:00 (Hora 12)</div>
+                        <!-- Dropdown de Seleção Manual (Oculto em modo Random) -->
+                        <div id="containerSelecaoManual" class="mb-3" style="display: none;">
+                            <label for="selectAmostraManual" class="form-label text-secondary small">Escolha a transação de teste:</label>
+                            <select
+                                id="selectAmostraManual"
+                                class="form-select-custom"
+                                onchange="selecionarAmostraManual(this.value)"
+                            >
+                                <!-- Preenchido dinamicamente via JS -->
+                            </select>
+                        </div>
+
+                        <!-- Cartão da Transação Ativa -->
+                        <div class="p-3 rounded border mb-3" style="background: var(--color-primary); border-color: var(--color-border) !important;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="badge-pill-custom badge-neutral font-mono" id="txBadgeId">TX-NORM-001</span>
+                                <span class="badge-pill-custom badge-green" id="txBadgeCategoria">Compra Legítima</span>
                             </div>
-                            <div class="col-6">
-                                <label for="amount_val" class="form-label font-mono">Valor Amostra na Fatura (R$):</label>
-                                <input type="number" id="amount_val" class="form-control-custom" value="89.90" step="0.01">
-                                <div class="text-secondary small mt-1" style="font-size: 0.72rem;">Amostra Calibrada (RobustScaler)</div>
+                            <div class="text-white small fw-bold mb-2" id="txDescricao">Compra Normal #1: Pagamento habitual em horário comercial</div>
+                            <div class="d-flex justify-content-between font-mono small text-secondary">
+                                <span id="txTimeDisplay">Tempo: 45000s (12:30:00)</span>
+                                <span id="txAmountDisplay">Valor Transação: R$ 89,90</span>
                             </div>
                         </div>
 
-                        <!-- Sanfona PCA V1..V28 -->
+                        <!-- Toggle Accordion Payload -->
                         <div class="mb-3">
-                            <button type="button" class="btn-secondary-custom btn-sm w-100 justify-content-between" onclick="togglePCA()" id="btnTogglePCA">
-                                <span class="d-flex align-items-center gap-2">
-                                    <svg class="icon" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-                                    Componentes PCA (V1 a V28)
-                                </span>
-                                <span id="pcaStatusText" class="text-secondary small">Expandir &darr;</span>
+                            <button
+                                type="button"
+                                class="btn btn-link text-info text-decoration-none small p-0 font-mono"
+                                onclick="togglePayloadAccordion()"
+                                id="btnTogglePayload"
+                            >
+                                ▶ Inspecionar Payload Completo (V1..V28)
                             </button>
-                            <div id="pcaGridContainer" class="mt-2 p-2 card-custom" style="display: none; background: #070b16;">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="small text-secondary font-mono" style="font-size: 0.72rem;">28 Variáveis Criptografadas</span>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm py-0 font-mono" style="font-size: 0.7rem;" onclick="zerarPCAs()">Zerar V1..V28</button>
-                                </div>
-                                <div class="row g-1" id="pcaInputsContainer"></div>
-                            </div>
+                            <pre id="prePayload" class="mt-2 p-2 rounded bg-black small font-mono text-secondary" style="display: none; max-height: 160px; overflow-y: auto; font-size: 0.75rem; border: 1px solid var(--color-border);"></pre>
                         </div>
 
                         <!-- Botão CTA Principal de Finalizar Compra -->
-                        <button id="btnFinalizarCompra" class="btn-cta w-100 py-3" onclick="processarCheckout()">
-                            <svg class="icon-lg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
-                            <span>Finalizar Compra e Processar Pagamento &rarr;</span>
-                        </button>
+                        <div class="pt-3 border-top" style="border-color: var(--color-border) !important;">
+                            <button id="btnFinalizarCompra" class="btn-cta w-100 py-3" onclick="processarCheckout()">
+                                <svg class="icon-lg" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                                <span>Finalizar Compra Agora</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -998,35 +1032,163 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             return cartaoAtual;
         }
 
-        // Amostras Calibradas do Modelo Treinado (Prof. Dr. Sidney Ferrari)
-        // 1. Fraude Crítica Real (Amostra Cell 41 do notebook) -> Score ~98.3% (Bloqueio Imediato)
-        const fraudValues = {
-            Time: 406.0, Amount: 149.62,
-            V1: -2.31, V2: 1.95, V3: -1.6, V4: 3.99, V5: -0.52, V6: -1.42, V7: -2.53, V8: 1.39,
-            V9: -2.77, V10: -2.77, V11: 3.2, V12: -2.89, V13: -0.59, V14: -4.28, V15: 0.38,
-            V16: -1.14, V17: -2.83, V18: -0.01, V19: 0.41, V20: 0.12, V21: 0.51, V22: -0.03,
-            V23: -0.46, V24: 0.32, V25: 0.04, V26: 0.17, V27: 0.26, V28: -0.14
-        };
+        // Injeção de Dados: 15 Amostras do Dataset Original (7 Normais, 3 Zona Amarela, 5 Fraudes Reais)
+        const SAMPLE_TRANSACTIONS = [
+            // 7 Compras Normais (Score Baixo < 0.50 -> Check Verde)
+            {
+                id: "TX-NORM-001",
+                description: "Compra Normal #1: Pagamento habitual em horário comercial",
+                expected_category: "normal",
+                category_label: "Compra Legítima",
+                Time: 45000.0, Amount: 89.90,
+                V16: 1.6, V25: 1.4, V7: 1.3, V26: 1.1, V12: 1.2, V23: 0.9,
+                V15: -0.6, V5: -0.5, V8: -0.6, V21: -0.5
+            },
+            {
+                id: "TX-NORM-002",
+                description: "Compra Normal #2: E-commerce recorrente com cliente VIP",
+                expected_category: "normal",
+                category_label: "Compra Legítima",
+                Time: 54000.0, Amount: 149.00,
+                V16: 1.8, V25: 1.6, V7: 1.4, V26: 1.2, V12: 1.3, V23: 1.0,
+                V15: -0.7, V5: -0.6, V8: -0.7, V21: -0.6
+            },
+            {
+                id: "TX-NORM-003",
+                description: "Compra Normal #3: Livro técnico parcelado sem juros",
+                expected_category: "normal",
+                category_label: "Compra Legítima",
+                Time: 62000.0, Amount: 79.50,
+                V16: 1.5, V25: 1.3, V7: 1.1, V26: 1.0, V12: 1.1, V23: 0.8,
+                V15: -0.5, V5: -0.4, V8: -0.5, V21: -0.4
+            },
+            {
+                id: "TX-NORM-004",
+                description: "Compra Normal #4: Periféricos de informática com entrega expressa",
+                expected_category: "normal",
+                category_label: "Compra Legítima",
+                Time: 39000.0, Amount: 249.90,
+                V16: 1.4, V25: 1.2, V7: 1.0, V26: 0.9, V12: 1.0, V23: 0.7,
+                V15: -0.4, V5: -0.3, V8: -0.4, V21: -0.3
+            },
+            {
+                id: "TX-NORM-005",
+                description: "Compra Normal #5: Acessórios para celular na MegaLoja",
+                expected_category: "normal",
+                category_label: "Compra Legítima",
+                Time: 48000.0, Amount: 45.00,
+                V16: 1.7, V25: 1.5, V7: 1.3, V26: 1.1, V12: 1.2, V23: 0.9,
+                V15: -0.6, V5: -0.5, V8: -0.6, V21: -0.5
+            },
+            {
+                id: "TX-NORM-006",
+                description: "Compra Normal #6: Monitor gamer com frete grátis",
+                expected_category: "normal",
+                category_label: "Compra Legítima",
+                Time: 51000.0, Amount: 350.00,
+                V16: 1.5, V25: 1.3, V7: 1.2, V26: 1.0, V12: 1.1, V23: 0.8,
+                V15: -0.5, V5: -0.4, V8: -0.5, V21: -0.4
+            },
+            {
+                id: "TX-NORM-007",
+                description: "Compra Normal #7: Fone Bluetooth com pagamento à vista",
+                expected_category: "normal",
+                category_label: "Compra Legítima",
+                Time: 58000.0, Amount: 199.90,
+                V16: 1.9, V25: 1.7, V7: 1.5, V26: 1.3, V12: 1.4, V23: 1.1,
+                V15: -0.8, V5: -0.7, V8: -0.8, V21: -0.7
+            },
+            // 3 Compras na Zona Amarela (Score 0.50 a 0.74 -> Desafio SMS 2FA)
+            {
+                id: "TX-NORM-008",
+                description: "Zona Amarela #1: Compra noturna de celular novo (Requer SMS 2FA)",
+                expected_category: "yellow_zone",
+                category_label: "Verificação 2FA (SMS)",
+                Time: 65000.0, Amount: 380.00,
+                V16: 0.78, V25: 0.65, V7: 0.45, V26: 0.40, V12: 0.45, V23: 0.30,
+                V15: -0.10, V5: -0.05, V8: -0.10, V21: -0.05
+            },
+            {
+                id: "TX-NORM-009",
+                description: "Zona Amarela #2: Novo endereço de entrega cadastrado (Requer SMS 2FA)",
+                expected_category: "yellow_zone",
+                category_label: "Verificação 2FA (SMS)",
+                Time: 65000.0, Amount: 410.00,
+                V16: 0.76, V25: 0.65, V7: 0.45, V26: 0.40, V12: 0.45, V23: 0.30,
+                V15: -0.10, V5: -0.05, V8: -0.10, V21: -0.05
+            },
+            {
+                id: "TX-NORM-010",
+                description: "Zona Amarela #3: Transação acima da média habitual (Requer SMS 2FA)",
+                expected_category: "yellow_zone",
+                category_label: "Verificação 2FA (SMS)",
+                Time: 65000.0, Amount: 450.00,
+                V16: 0.75, V25: 0.65, V7: 0.45, V26: 0.40, V12: 0.45, V23: 0.30,
+                V15: -0.10, V5: -0.05, V8: -0.10, V21: -0.05
+            },
+            // 5 Fraudes Reais (Score >= 0.75 -> Bloqueio Imediato: Transação Negada)
+            {
+                id: "TX-FRAUD-001",
+                description: "Fraude #1: Clonagem Noturna Confirmada (Amostra Cell 41)",
+                expected_category: "fraud",
+                category_label: "Fraude Crítica",
+                Time: 406.0, Amount: 149.62,
+                V1: -2.31, V2: 1.95, V3: -1.60, V4: 3.99, V5: -0.52, V6: -1.42, V7: -2.53, V8: 1.39,
+                V9: -2.77, V10: -2.77, V11: 3.20, V12: -2.89, V13: -0.59, V14: -4.28, V15: 0.38,
+                V16: -1.14, V17: -2.83, V18: -0.01, V19: 0.41, V20: 0.12, V21: 0.51, V22: -0.03,
+                V23: -0.46, V24: 0.32, V25: 0.04, V26: 0.17, V27: 0.26, V28: -0.14
+            },
+            {
+                id: "TX-FRAUD-002",
+                description: "Fraude #2: Compra Abusiva com Cartão Furtado (03:15h)",
+                expected_category: "fraud",
+                category_label: "Fraude Crítica",
+                Time: 11800.0, Amount: 4899.00,
+                V1: -3.05, V2: 2.50, V3: -2.90, V4: 4.10, V5: -1.20, V6: -1.80, V7: -3.10, V8: 1.80,
+                V9: -3.20, V10: -3.50, V11: 3.80, V12: -3.90, V13: -0.80, V14: -5.10, V15: 0.40,
+                V16: -1.80, V17: -3.90, V18: -0.20, V19: 0.60, V20: 0.40, V21: 0.80, V22: -0.10,
+                V23: -0.50, V24: 0.20, V25: 0.10, V26: 0.30, V27: 0.40, V28: -0.20
+            },
+            {
+                id: "TX-FRAUD-003",
+                description: "Fraude #3: Injeção de Cartão Bloqueado no Emissor",
+                expected_category: "fraud",
+                category_label: "Fraude Crítica",
+                Time: 472.0, Amount: 529.00,
+                V1: -2.80, V2: 2.10, V3: -2.20, V4: 3.75, V5: -0.90, V6: -1.60, V7: -2.80, V8: 1.50,
+                V9: -2.95, V10: -3.10, V11: 3.40, V12: -3.20, V13: -0.70, V14: -4.60, V15: 0.25,
+                V16: -1.40, V17: -3.20, V18: -0.10, V19: 0.50, V20: 0.25, V21: 0.65, V22: -0.05,
+                V23: -0.48, V24: 0.25, V25: 0.08, V26: 0.22, V27: 0.32, V28: -0.18
+            },
+            {
+                id: "TX-FRAUD-004",
+                description: "Fraude #4: Ataque Automatizado de Teste de Cartões (Botnet)",
+                expected_category: "fraud",
+                category_label: "Fraude Crítica",
+                Time: 8500.0, Amount: 1290.00,
+                V1: -2.55, V2: 2.05, V3: -1.95, V4: 3.85, V5: -0.75, V6: -1.50, V7: -2.65, V8: 1.45,
+                V9: -2.85, V10: -2.95, V11: 3.30, V12: -3.05, V13: -0.65, V14: -4.45, V15: 0.32,
+                V16: -1.25, V17: -3.05, V18: -0.05, V19: 0.45, V20: 0.18, V21: 0.58, V22: -0.04,
+                V23: -0.47, V24: 0.28, V25: 0.06, V26: 0.19, V27: 0.29, V28: -0.16
+            },
+            {
+                id: "TX-FRAUD-005",
+                description: "Fraude #5: Golpe de Alto Valor via Proxy Anônimo",
+                expected_category: "fraud",
+                category_label: "Fraude Crítica",
+                Time: 24000.0, Amount: 8999.00,
+                V1: -3.40, V2: 2.80, V3: -3.10, V4: 4.50, V5: -1.50, V6: -2.00, V7: -3.40, V8: 2.00,
+                V9: -3.50, V10: -3.80, V11: 4.10, V12: -4.20, V13: -0.90, V14: -5.50, V15: 0.45,
+                V16: -2.00, V17: -4.20, V18: -0.30, V19: 0.70, V20: 0.50, V21: 0.90, V22: -0.15,
+                V23: -0.55, V24: 0.15, V25: 0.12, V26: 0.35, V27: 0.45, V28: -0.25
+            }
+        ];
 
-        // 2. Compra Cotidiana Segura (Transação legítima de alta confiança) -> Score ~0.9% (Pagamento Aprovado)
-        const normalValues = {
-            Time: 45000.0, Amount: 89.90,
-            V1: 0.0, V2: 0.0, V3: 0.0, V4: 0.0, V5: -0.6, V6: 0.0, V7: 1.4, V8: -0.7,
-            V9: 0.0, V10: 0.0, V11: 0.0, V12: 1.3, V13: 0.0, V14: 0.0, V15: -0.7,
-            V16: 1.8, V17: 0.0, V18: 0.0, V19: 0.0, V20: 0.0, V21: -0.6, V22: 0.0,
-            V23: 1.0, V24: 0.0, V25: 1.6, V26: 1.2, V27: 0.0, V28: 0.0
-        };
-
-        // 3. Zona Amarela / Risco Moderado (Transação atípica em horário noturno) -> Score ~52.1% (2FA SMS)
-        const suspeitaValues = {
-            Time: 65000.0, Amount: 380.00,
-            V1: 0.0, V2: 0.0, V3: 0.0, V4: 0.0, V5: -0.05, V6: 0.0, V7: 0.45, V8: -0.1,
-            V9: 0.0, V10: 0.0, V11: 0.0, V12: 0.45, V13: 0.0, V14: 0.0, V15: -0.1,
-            V16: 0.78, V17: 0.0, V18: 0.0, V19: 0.0, V20: 0.0, V21: -0.05, V22: 0.0,
-            V23: 0.3, V24: 0.0, V25: 0.65, V26: 0.4, V27: 0.0, V28: 0.0
-        };
-
-        let currentPCA = { ...normalValues };
+        let modoInjecao = 'random'; // 'random' | 'manual'
+        let selectedTxId = SAMPLE_TRANSACTIONS[0].id;
+        let activeTx = SAMPLE_TRANSACTIONS[0];
+        let showPayload = false;
+        let currentPCA = { ...SAMPLE_TRANSACTIONS[0] };
 
         function formatarBRL(val) {
             return Number(val).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -1124,23 +1286,39 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             const btn = document.getElementById('btnFinalizarCompra');
             if (btn) {
                 btn.disabled = true;
-                btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Avaliando Risco Antifraude...`;
+                btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Avaliando Risco na Nuvem Vercel...`;
             }
 
-            currentPCA.Time = parseFloat(document.getElementById('time_val').value) || 50000.0;
-            currentPCA.Amount = parseFloat(document.getElementById('amount_val').value) || (produtoAtual.preco - 100.0);
+            // 1. Sorteio ou Seleção Manual da Transação
+            let currentTx;
+            if (modoInjecao === 'random') {
+                const randomIndex = Math.floor(Math.random() * SAMPLE_TRANSACTIONS.length);
+                currentTx = SAMPLE_TRANSACTIONS[randomIndex];
+                selectedTxId = currentTx.id;
+                const sel = document.getElementById('selectAmostraManual');
+                if (sel) sel.value = currentTx.id;
+            } else {
+                currentTx = SAMPLE_TRANSACTIONS.find(t => t.id === selectedTxId) || SAMPLE_TRANSACTIONS[0];
+            }
+            activeTx = currentTx;
+            atualizarCardAmostra(activeTx);
 
+            // 2. Prepara o Payload completo (Time, Amount, V1 a V28)
+            const payload = {
+                Time: currentTx.Time,
+                Amount: currentTx.Amount
+            };
             for (let i = 1; i <= 28; i++) {
-                const el = document.getElementById('pca_v' + i);
-                if (el) currentPCA['V' + i] = parseFloat(el.value) || 0.0;
+                payload['V' + i] = currentTx['V' + i] !== undefined ? currentTx['V' + i] : 0.0;
             }
+            currentPCA = { ...payload };
 
             const t0 = performance.now();
             try {
                 const response = await fetch('/predict', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(currentPCA)
+                    body: JSON.stringify(payload)
                 });
                 const data = await response.json();
                 const t1 = performance.now();
@@ -1154,7 +1332,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             } finally {
                 if (btn) {
                     btn.disabled = false;
-                    btn.innerHTML = `<svg class="icon-lg" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg> <span>Finalizar Compra e Processar Pagamento &rarr;</span>`;
+                    btn.innerHTML = `<svg class="icon-lg" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg> <span>Finalizar Compra Agora</span>`;
                 }
             }
         }
@@ -1185,6 +1363,10 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                             <div class="d-flex justify-content-between mb-1">
                                 <span class="text-secondary">Parecer do Modelo:</span>
                                 <strong class="text-danger">FRAUDE DETECTADA</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-secondary">Amostra do Dataset:</span>
+                                <span class="text-white">${activeTx ? activeTx.id + ' (' + activeTx.category_label + ')' : 'TX-DATASET'}</span>
                             </div>
                             <div class="d-flex justify-content-between mb-1">
                                 <span class="text-secondary">Cartão Monitorado:</span>
@@ -1323,6 +1505,10 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                         <div class="d-flex justify-content-between mb-1">
                             <span class="text-secondary">Status da Transação:</span>
                             <strong class="text-success">APROVADA (NÃO É FRAUDE)</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary">Amostra do Dataset:</span>
+                            <span class="text-white">${activeTx ? activeTx.id + ' (' + activeTx.category_label + ')' : 'TX-DATASET'}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-1">
                             <span class="text-secondary">Titular & Cartão:</span>
@@ -1468,85 +1654,103 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             `;
         }
 
-        // Renderiza inputs das variáveis PCA
-        function renderizarPCAInputs() {
-            const container = document.getElementById('pcaInputsContainer');
-            if (!container) return;
-            container.innerHTML = '';
-            for (let i = 1; i <= 28; i++) {
-                const col = document.createElement('div');
-                col.className = 'col-6 col-sm-4 col-md-3 col-lg-2';
-                col.innerHTML = `
-                    <label for="pca_v${i}" class="form-label font-mono" style="font-size: 0.7rem;">V${i}:</label>
-                    <input type="number" id="pca_v${i}" class="form-control-custom py-1 px-2" style="font-size: 0.75rem;" 
-                           value="${currentPCA['V' + i] || 0.0}" step="0.01" oninput="atualizarPCAVal(${i}, this.value)">
-                `;
-                container.appendChild(col);
-            }
-        }
+        // Funções da Injeção de Dados (15 Amostras do Dataset)
+        function setModoInjecao(modo) {
+            modoInjecao = modo;
+            const btnRandom = document.getElementById('btnModoRandom');
+            const btnManual = document.getElementById('btnModoManual');
+            const badge = document.getElementById('badgeModoInjecao');
+            const containerManual = document.getElementById('containerSelecaoManual');
 
-        function atualizarPCAVal(index, val) {
-            currentPCA['V' + index] = parseFloat(val) || 0.0;
-        }
-
-        function zerarPCAs() {
-            for (let i = 1; i <= 28; i++) {
-                currentPCA['V' + i] = 0.0;
-                const el = document.getElementById('pca_v' + i);
-                if (el) el.value = "0.0";
-            }
-        }
-
-        function atualizarHoraEstimada() {
-            const timeEl = document.getElementById('time_val');
-            const t = parseFloat(timeEl ? timeEl.value : 0) || 0;
-            const hour = Math.floor(t / 3600) % 24;
-            const min = Math.floor((t % 3600) / 60);
-            const sec = Math.floor(t % 60);
-            const pad = (n) => String(n).padStart(2, '0');
-            const el = document.getElementById('time_hora_display');
-            if (el) el.innerText = `Horário: ${pad(hour)}:${pad(min)}:${pad(sec)} (Hora ${hour})`;
-        }
-
-        function carregarPreset(tipo) {
-            document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
-
-            if (tipo === 'fraude') {
-                const chip = document.getElementById('chip-fraude');
-                if (chip) chip.classList.add('active');
-                currentPCA = { ...fraudValues };
-            } else if (tipo === 'normal') {
-                const chip = document.getElementById('chip-normal');
-                if (chip) chip.classList.add('active');
-                currentPCA = { ...normalValues };
-            } else if (tipo === 'suspeita') {
-                const chip = document.getElementById('chip-suspeita');
-                if (chip) chip.classList.add('active');
-                currentPCA = { ...suspeitaValues };
-            }
-
-            const timeEl = document.getElementById('time_val');
-            if (timeEl) timeEl.value = currentPCA.Time;
-            const amountEl = document.getElementById('amount_val');
-            if (amountEl) amountEl.value = currentPCA.Amount.toFixed(2);
-            atualizarHoraEstimada();
-
-            for (let i = 1; i <= 28; i++) {
-                const el = document.getElementById('pca_v' + i);
-                if (el) el.value = currentPCA['V' + i] !== undefined ? currentPCA['V' + i] : 0.0;
-            }
-        }
-
-        function togglePCA() {
-            const grid = document.getElementById('pcaGridContainer');
-            const status = document.getElementById('pcaStatusText');
-            if (!grid || !status) return;
-            if (grid.style.display === 'none') {
-                grid.style.display = 'block';
-                status.innerHTML = 'Recolher &uarr;';
+            if (modo === 'random') {
+                if (btnRandom) btnRandom.className = 'btn-secondary-custom flex-grow-1 small border-success text-white';
+                if (btnManual) btnManual.className = 'btn-secondary-custom flex-grow-1 small';
+                if (badge) badge.innerText = 'Modo: Sorteio';
+                if (containerManual) containerManual.style.display = 'none';
             } else {
-                grid.style.display = 'none';
-                status.innerHTML = 'Expandir &darr;';
+                if (btnRandom) btnRandom.className = 'btn-secondary-custom flex-grow-1 small';
+                if (btnManual) btnManual.className = 'btn-secondary-custom flex-grow-1 small border-info text-white';
+                if (badge) badge.innerText = 'Modo: Manual';
+                if (containerManual) containerManual.style.display = 'block';
+            }
+        }
+
+        function popularSelectManual() {
+            const sel = document.getElementById('selectAmostraManual');
+            if (!sel) return;
+            const normais = SAMPLE_TRANSACTIONS.filter(t => t.expected_category === 'normal');
+            const suspeitas = SAMPLE_TRANSACTIONS.filter(t => t.expected_category === 'yellow_zone');
+            const fraudes = SAMPLE_TRANSACTIONS.filter(t => t.expected_category === 'fraud');
+
+            sel.innerHTML = `
+                <optgroup label="🟢 Compras Normais (Score Baixo -> Aprovado)">
+                    ${normais.map(t => `<option value="${t.id}">${t.id} — ${t.description}</option>`).join('')}
+                </optgroup>
+                <optgroup label="🟡 Zona Amarela (Score Médio -> Desafio SMS 2FA)">
+                    ${suspeitas.map(t => `<option value="${t.id}">${t.id} — ${t.description}</option>`).join('')}
+                </optgroup>
+                <optgroup label="🔴 Fraudes Reais (Score Alto -> Bloqueio Imediato)">
+                    ${fraudes.map(t => `<option value="${t.id}">${t.id} — ${t.description}</option>`).join('')}
+                </optgroup>
+            `;
+            sel.value = selectedTxId;
+        }
+
+        function selecionarAmostraManual(id) {
+            selectedTxId = id;
+            const found = SAMPLE_TRANSACTIONS.find(t => t.id === id);
+            if (found) {
+                activeTx = found;
+                currentPCA = { ...found };
+                atualizarCardAmostra(activeTx);
+            }
+        }
+
+        function atualizarCardAmostra(tx) {
+            if (!tx) return;
+            const badgeId = document.getElementById('txBadgeId');
+            if (badgeId) badgeId.innerText = tx.id;
+
+            const badgeCat = document.getElementById('txBadgeCategoria');
+            if (badgeCat) {
+                badgeCat.innerText = tx.category_label;
+                badgeCat.className = 'badge-pill-custom ' + (
+                    tx.expected_category === 'fraud' ? 'badge-red' :
+                    tx.expected_category === 'yellow_zone' ? 'badge-yellow' : 'badge-green'
+                );
+            }
+
+            const desc = document.getElementById('txDescricao');
+            if (desc) desc.innerText = tx.description;
+
+            const timeDisp = document.getElementById('txTimeDisplay');
+            if (timeDisp) {
+                const h = Math.floor(tx.Time / 3600) % 24;
+                const m = Math.floor((tx.Time % 3600) / 60);
+                const s = Math.floor(tx.Time % 60);
+                const pad = (n) => String(n).padStart(2, '0');
+                timeDisp.innerText = `Tempo: ${tx.Time}s (${pad(h)}:${pad(m)}:${pad(s)})`;
+            }
+
+            const amountDisp = document.getElementById('txAmountDisplay');
+            if (amountDisp) {
+                amountDisp.innerText = `Valor Transação: ${formatarBRL(tx.Amount)}`;
+            }
+
+            const pre = document.getElementById('prePayload');
+            if (pre) {
+                pre.innerText = JSON.stringify(tx, null, 2);
+            }
+        }
+
+        function togglePayloadAccordion() {
+            showPayload = !showPayload;
+            const pre = document.getElementById('prePayload');
+            const btn = document.getElementById('btnTogglePayload');
+            if (pre) pre.style.display = showPayload ? 'block' : 'none';
+            if (btn) btn.innerText = showPayload ? '▼ Ocultar Componentes PCA (V1..V28)' : '▶ Inspecionar Payload Completo (V1..V28)';
+            if (showPayload && pre) {
+                pre.innerText = JSON.stringify(activeTx, null, 2);
             }
         }
 
@@ -1641,7 +1845,8 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         function inicializarLoja() {
             sortearNovoCartao();
             renderizarCatalogo();
-            renderizarPCAInputs();
+            popularSelectManual();
+            atualizarCardAmostra(activeTx);
             selecionarProduto('prod-1');
             switchTab('produtos');
         }
