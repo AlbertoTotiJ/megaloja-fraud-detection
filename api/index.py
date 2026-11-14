@@ -1265,6 +1265,13 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             }
         ];
 
+        // Garante que todas as amostras tenham todas as 28 variáveis PCA populadas numericamente
+        SAMPLE_TRANSACTIONS.forEach(t => {
+            for (let i = 1; i <= 28; i++) {
+                if (t['V' + i] === undefined) t['V' + i] = 0.0;
+            }
+        });
+
         let modoInjecao = 'random'; // 'random' | 'manual'
         let selectedTxId = SAMPLE_TRANSACTIONS[0].id;
         let activeTx = SAMPLE_TRANSACTIONS[0];
@@ -1338,7 +1345,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             const totalEl = document.getElementById('checkoutProdTotal');
             if (totalEl) totalEl.innerText = formatarBRL(total);
             const amountEl = document.getElementById('amount_val');
-            if (amountEl) amountEl.value = currentPCA.Amount.toFixed(2);
+            if (amountEl) amountEl.value = ((currentPCA && currentPCA.Amount !== undefined) ? Number(currentPCA.Amount) : total).toFixed(2);
 
             switchTab('checkout');
         }
@@ -1393,6 +1400,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                 payload['V' + i] = currentTx['V' + i] !== undefined ? currentTx['V' + i] : 0.0;
             }
             currentPCA = { ...payload };
+            activeTx = { ...currentTx, ...payload };
 
             const t0 = performance.now();
             try {
@@ -1423,11 +1431,15 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             const container = document.getElementById('conclusaoContainer');
             if (smsTimerInterval) clearInterval(smsTimerInterval);
 
-            const probPercent = (data.fraud_probability * 100).toFixed(2);
-            const totalFormatado = formatarBRL(currentPCA.Amount);
+            const probVal = (data && data.fraud_probability !== undefined && !isNaN(Number(data.fraud_probability)))
+                ? Number(data.fraud_probability)
+                : (activeTx && activeTx.expected_category === 'fraud' ? 0.98 : (activeTx && activeTx.expected_category === 'yellow_zone' ? 0.65 : 0.02));
+            const probPercent = (probVal * 100).toFixed(2);
+            const amtVal = (currentPCA && currentPCA.Amount !== undefined) ? Number(currentPCA.Amount) : (produtoAtual ? Number(produtoAtual.preco) : 89.90);
+            const totalFormatado = formatarBRL(amtVal);
 
             // CENÁRIO 1: FRAUDE CONFIRMADA (Score >= 0.75) -> AVISO VERMELHO
-            if (data.fraud_probability >= 0.75) {
+            if (probVal >= 0.75) {
                 container.innerHTML = `
                     <div class="card-custom p-4 p-md-5 text-center border" style="background: rgba(239, 68, 68, 0.08); border-color: var(--color-destructive) !important; box-shadow: var(--shadow-glow-danger);">
                         <div class="mb-3" style="color: var(--color-destructive);">
@@ -1494,7 +1506,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             }
 
             // CENÁRIO 2: ZONA AMARELA / RISCO MÉDIO (50% a 74%) -> DESAFIO 2FA SMS COM TEMPORIZADOR
-            if (data.fraud_probability >= 0.50) {
+            if (probVal >= 0.50) {
                 smsTimeLeft = 299; // 04:59
 
                 container.innerHTML = `
@@ -1884,8 +1896,25 @@ HTML_DASHBOARD = """<!DOCTYPE html>
         }
 
         function atualizarPainelXAI(tx, result) {
-            const targetTx = tx || activeTx || (SAMPLE_TRANSACTIONS && SAMPLE_TRANSACTIONS[0]);
+            const targetTx = tx || activeTx || currentPCA || (SAMPLE_TRANSACTIONS && SAMPLE_TRANSACTIONS[0]);
             if (!targetTx) return;
+
+            // Helper seguro para obter valores numéricos sem risco de TypeError em toFixed
+            const getNum = (key, def = 0.0) => {
+                let v = targetTx[key];
+                if (v === undefined && typeof currentPCA !== 'undefined' && currentPCA) v = currentPCA[key];
+                if (v !== undefined && v !== null && !isNaN(Number(v))) return Number(v);
+                return def;
+            };
+
+            const v17 = getNum('V17', 0.0);
+            const v14 = getNum('V14', 0.0);
+            const v12 = getNum('V12', 0.0);
+            const v10 = getNum('V10', 0.0);
+            const v4  = getNum('V4', 0.0);
+            const v16 = getNum('V16', 0.0);
+            const timeSec = getNum('Time', 45000.0);
+            const amountVal = getNum('Amount', 100.0);
 
             const badgeStatus = document.getElementById('xaiBadgeStatus');
             const cardNarrativa = document.getElementById('xaiNarrativaCard');
@@ -1894,15 +1923,17 @@ HTML_DASHBOARD = """<!DOCTYPE html>
             const textoNarrativa = document.getElementById('xaiTextoNarrativa');
             const tabelaBody = document.getElementById('tabelaXaiBody');
 
-            const hora = Math.floor(targetTx.Time / 3600) % 24;
+            const hora = Math.floor(timeSec / 3600) % 24;
             const horaFormatada = String(hora).padStart(2, '0') + 'h';
-            const totalFormatado = formatarBRL(targetTx.Amount);
+            const totalFormatado = formatarBRL(amountVal);
+            const txId = targetTx.id || 'TX-AMOSTRA';
+            const txDesc = targetTx.description || 'Transação monitorada pelo motor antifraude';
 
             if (!result) {
                 // Estado de espera / pré-inferência
                 if (badgeStatus) {
                     badgeStatus.className = 'badge-status badge-neutral font-mono';
-                    badgeStatus.innerText = 'Standby • ' + targetTx.id;
+                    badgeStatus.innerText = 'Standby • ' + txId;
                 }
                 if (cardNarrativa) {
                     cardNarrativa.style.background = 'var(--color-primary)';
@@ -1912,13 +1943,15 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                     iconeNarrativa.innerHTML = `<svg class="icon text-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
                 }
                 if (tituloNarrativa) {
-                    tituloNarrativa.innerText = `Amostra Pronta para Avaliação (${targetTx.id}):`;
+                    tituloNarrativa.innerText = `Amostra Pronta para Avaliação (${txId}):`;
                 }
                 if (textoNarrativa) {
-                    textoNarrativa.innerHTML = `Transação carregada: <strong>${targetTx.description}</strong> (${totalFormatado}, Horário: ${horaFormatada}). Finalize o pedido no <strong>Checkout (Passo 2)</strong> para executar o ensemble de IA e inspecionar a atribuição detalhada dos pesos e correlações XAI.`;
+                    textoNarrativa.innerHTML = `Transação carregada: <strong>${txDesc}</strong> (${totalFormatado}, Horário: ${horaFormatada}). Finalize o pedido no <strong>Checkout (Passo 2)</strong> para executar o ensemble de IA e inspecionar a atribuição detalhada dos pesos e correlações XAI.`;
                 }
             } else {
-                const prob = result.fraud_probability !== undefined ? result.fraud_probability : (targetTx.expected_category === 'fraud' ? 0.98 : 0.02);
+                const prob = (result.fraud_probability !== undefined && !isNaN(Number(result.fraud_probability)))
+                    ? Number(result.fraud_probability)
+                    : (targetTx.expected_category === 'fraud' ? 0.98 : (targetTx.expected_category === 'yellow_zone' ? 0.65 : 0.02));
                 const probPercent = (prob * 100).toFixed(1);
 
                 if (prob >= 0.75) {
@@ -1938,7 +1971,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                         tituloNarrativa.innerText = `Racional XAI: Violação Múltipla de Limiares Críticos (Célula 41)`;
                     }
                     if (textoNarrativa) {
-                        textoNarrativa.innerHTML = `O modelo identificou que os componentes latentes <code>V14</code> (${targetTx.V14.toFixed(2)}) e <code>V17</code> (${targetTx.V17.toFixed(2)}) sofreram um deslocamento negativo extremo (< -2.5), rompendo a assinatura histórica do titular. Aliado ao disparo em <code>V4</code> (+${targetTx.V4.toFixed(2)}) e ao valor/horário (${horaFormatada}), a probabilidade de fraude alcançou <strong>${probPercent}%</strong>, superando o teto de 75% e disparando o <strong>bloqueio preventivo sem tolerância</strong>.`;
+                        textoNarrativa.innerHTML = `O modelo identificou que os componentes latentes <code>V14</code> (${v14.toFixed(2)}) e <code>V17</code> (${v17.toFixed(2)}) sofreram um deslocamento negativo extremo (< -2.5), rompendo a assinatura histórica do titular. Aliado ao disparo em <code>V4</code> (+${v4.toFixed(2)}) e ao valor/horário (${horaFormatada}), a probabilidade de fraude alcançou <strong>${probPercent}%</strong>, superando o teto de 75% e disparando o <strong>bloqueio preventivo sem tolerância</strong>.`;
                     }
                 } else if (prob >= 0.50) {
                     // CENÁRIO 2: 2FA / ZONA AMARELA
@@ -1957,7 +1990,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                         tituloNarrativa.innerText = `Racional XAI: Anomalia Intermediária Exige Prova de Posse (2FA)`;
                     }
                     if (textoNarrativa) {
-                        textoNarrativa.innerHTML = `A transação apresentou pontuação de risco intermediária (<strong>${probPercent}%</strong>). As variáveis chave (ex: <code>V14</code> em ${targetTx.V14.toFixed(2)} e <code>V12</code> em ${targetTx.V12.toFixed(2)}) apresentaram desvios parciais em relação ao comportamento padrão, insuficientes para bloqueio automático direto, mas arriscados para aprovação imediata. O motor de regras direcionou o fluxo para a <strong>Autenticação em Duas Etapas (SMS) com temporizador ativo</strong> para evitar atrito desnecessário com clientes legítimos.`;
+                        textoNarrativa.innerHTML = `A transação apresentou pontuação de risco intermediária (<strong>${probPercent}%</strong>). As variáveis chave (ex: <code>V14</code> em ${v14.toFixed(2)} e <code>V12</code> em ${v12.toFixed(2)}) apresentaram desvios parciais em relação ao comportamento padrão, insuficientes para bloqueio automático direto, mas arriscados para aprovação imediata. O motor de regras direcionou o fluxo para a <strong>Autenticação em Duas Etapas (SMS) com temporizador ativo</strong> para evitar atrito desnecessário com clientes legítimos.`;
                     }
                 } else {
                     // CENÁRIO 3: APROVADO / SEGURO
@@ -1976,7 +2009,7 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                         tituloNarrativa.innerText = `Racional XAI: Alta Conformidade e Baixo Risco`;
                     }
                     if (textoNarrativa) {
-                        textoNarrativa.innerHTML = `Todas as variáveis discriminantes permaneceram dentro das faixas estatísticas de segurança: <code>V17</code> (${targetTx.V17.toFixed(2)}) e <code>V14</code> (${targetTx.V14.toFixed(2)}) estão em conformidade com compras autênticas, e o fator protetor <code>V16</code> (+${targetTx.V16.toFixed(2)}) amorteceu o score para apenas <strong>${probPercent}%</strong>. O pagamento de ${totalFormatado} foi <strong>aprovado instantaneamente com segurança confirmada</strong>.`;
+                        textoNarrativa.innerHTML = `Todas as variáveis discriminantes permaneceram dentro das faixas estatísticas de segurança: <code>V17</code> (${v17.toFixed(2)}) e <code>V14</code> (${v14.toFixed(2)}) estão em conformidade com compras autênticas, e o fator protetor <code>V16</code> (+${v16.toFixed(2)}) amorteceu o score para apenas <strong>${probPercent}%</strong>. O pagamento de ${totalFormatado} foi <strong>aprovado instantaneamente com segurança confirmada</strong>.`;
                     }
                 }
             }
@@ -1986,61 +2019,61 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                 const featuresXai = [
                     {
                         nome: 'V17 (Assinatura do Portador)',
-                        valor: targetTx.V17.toFixed(4),
+                        valor: v17.toFixed(4),
                         peso: 'r = -0.3265 (Top 1)',
-                        isRisk: targetTx.V17 < -1.5,
-                        barWidth: targetTx.V17 < -1.5 ? Math.min(100, Math.abs(targetTx.V17) * 20) : 25,
-                        barClass: targetTx.V17 < -1.5 ? 'xai-bar-danger' : (targetTx.V17 < 0 ? 'xai-bar-warning' : 'xai-bar-success'),
-                        interpretacao: targetTx.V17 < -1.5 ? '⚠️ Desvio severo no padrão biométrico/comportamental' : (targetTx.V17 < 0 ? 'Oscilação leve na assinatura do portador' : '✓ Assinatura altamente compatível com histórico habitual')
+                        isRisk: v17 < -1.5,
+                        barWidth: v17 < -1.5 ? Math.min(100, Math.abs(v17) * 20) : 25,
+                        barClass: v17 < -1.5 ? 'xai-bar-danger' : (v17 < 0 ? 'xai-bar-warning' : 'xai-bar-success'),
+                        interpretacao: v17 < -1.5 ? '⚠️ Desvio severo no padrão biométrico/comportamental' : (v17 < 0 ? 'Oscilação leve na assinatura do portador' : '✓ Assinatura altamente compatível com histórico habitual')
                     },
                     {
                         nome: 'V14 (Integridade do Cartão)',
-                        valor: targetTx.V14.toFixed(4),
+                        valor: v14.toFixed(4),
                         peso: 'r = -0.3025 (Top 2)',
-                        isRisk: targetTx.V14 < -2.0,
-                        barWidth: targetTx.V14 < -2.0 ? Math.min(100, Math.abs(targetTx.V14) * 18) : 20,
-                        barClass: targetTx.V14 < -2.0 ? 'xai-bar-danger' : (targetTx.V14 < -0.5 ? 'xai-bar-warning' : 'xai-bar-success'),
-                        interpretacao: targetTx.V14 < -2.0 ? '🚨 Alerta crítico de clonagem ou dados comprometidos' : (targetTx.V14 < -0.5 ? 'Dispersão intermediária em análise' : '✓ Integridade do token de cartão validada')
+                        isRisk: v14 < -2.0,
+                        barWidth: v14 < -2.0 ? Math.min(100, Math.abs(v14) * 18) : 20,
+                        barClass: v14 < -2.0 ? 'xai-bar-danger' : (v14 < -0.5 ? 'xai-bar-warning' : 'xai-bar-success'),
+                        interpretacao: v14 < -2.0 ? '🚨 Alerta crítico de clonagem ou dados comprometidos' : (v14 < -0.5 ? 'Dispersão intermediária em análise' : '✓ Integridade do token de cartão validada')
                     },
                     {
                         nome: 'V12 (Consistência de Saldo & Limite)',
-                        valor: targetTx.V12.toFixed(4),
+                        valor: v12.toFixed(4),
                         peso: 'r = -0.2606 (Top 3)',
-                        isRisk: targetTx.V12 < -1.5,
-                        barWidth: targetTx.V12 < -1.5 ? Math.min(100, Math.abs(targetTx.V12) * 22) : 22,
-                        barClass: targetTx.V12 < -1.5 ? 'xai-bar-danger' : 'xai-bar-success',
-                        interpretacao: targetTx.V12 < -1.5 ? '⚠️ Padrão anômalo de esgotamento/débito rápido' : '✓ Histórico de saldo e limites preservado'
+                        isRisk: v12 < -1.5,
+                        barWidth: v12 < -1.5 ? Math.min(100, Math.abs(v12) * 22) : 22,
+                        barClass: v12 < -1.5 ? 'xai-bar-danger' : 'xai-bar-success',
+                        interpretacao: v12 < -1.5 ? '⚠️ Padrão anômalo de esgotamento/débito rápido' : '✓ Histórico de saldo e limites preservado'
                     },
                     {
                         nome: 'V10 (Canal & Dispositivo Emissor)',
-                        valor: targetTx.V10.toFixed(4),
+                        valor: v10.toFixed(4),
                         peso: 'r = -0.2169 (Top 4)',
-                        isRisk: targetTx.V10 < -1.2,
-                        barWidth: targetTx.V10 < -1.2 ? Math.min(100, Math.abs(targetTx.V10) * 24) : 18,
-                        barClass: targetTx.V10 < -1.2 ? 'xai-bar-danger' : 'xai-bar-success',
-                        interpretacao: targetTx.V10 < -1.2 ? '⚠️ IP / fingerprint de dispositivo atípico' : '✓ Dispositivo e canal verificados'
+                        isRisk: v10 < -1.2,
+                        barWidth: v10 < -1.2 ? Math.min(100, Math.abs(v10) * 24) : 18,
+                        barClass: v10 < -1.2 ? 'xai-bar-danger' : 'xai-bar-success',
+                        interpretacao: v10 < -1.2 ? '⚠️ IP / fingerprint de dispositivo atípico' : '✓ Dispositivo e canal verificados'
                     },
                     {
                         nome: 'V4 (Aceleração / Frequência)',
-                        valor: (targetTx.V4 >= 0 ? '+' : '') + targetTx.V4.toFixed(4),
+                        valor: (v4 >= 0 ? '+' : '') + v4.toFixed(4),
                         peso: 'r = +0.1334 (Gatilho Positivo)',
-                        isRisk: targetTx.V4 > 1.8,
-                        barWidth: targetTx.V4 > 1.8 ? Math.min(100, targetTx.V4 * 25) : 15,
-                        barClass: targetTx.V4 > 1.8 ? 'xai-bar-danger' : 'xai-bar-success',
-                        interpretacao: targetTx.V4 > 1.8 ? '🚨 Surto de requisições sequenciais (Ataque automatizado)' : '✓ Intervalo normal entre compras'
+                        isRisk: v4 > 1.8,
+                        barWidth: v4 > 1.8 ? Math.min(100, v4 * 25) : 15,
+                        barClass: v4 > 1.8 ? 'xai-bar-danger' : 'xai-bar-success',
+                        interpretacao: v4 > 1.8 ? '🚨 Surto de requisições sequenciais (Ataque automatizado)' : '✓ Intervalo normal entre compras'
                     },
                     {
                         nome: 'V16 (Fator Protetor de Compra Habitual)',
-                        valor: (targetTx.V16 >= 0 ? '+' : '') + targetTx.V16.toFixed(4),
+                        valor: (v16 >= 0 ? '+' : '') + v16.toFixed(4),
                         peso: 'r = +0.1965 (Amortecedor)',
-                        isRisk: targetTx.V16 < -1.0,
-                        barWidth: targetTx.V16 >= 0 ? Math.min(100, (targetTx.V16 + 1) * 30) : 30,
-                        barClass: targetTx.V16 >= 0 ? 'xai-bar-success' : 'xai-bar-warning',
-                        interpretacao: targetTx.V16 >= 0 ? '✓ Peso protetivo favorável (reduz falsos-positivos)' : '⚠️ Redução da margem protetiva habitual'
+                        isRisk: v16 < -1.0,
+                        barWidth: v16 >= 0 ? Math.min(100, (v16 + 1) * 30) : 30,
+                        barClass: v16 >= 0 ? 'xai-bar-success' : 'xai-bar-warning',
+                        interpretacao: v16 >= 0 ? '✓ Peso protetivo favorável (reduz falsos-positivos)' : '⚠️ Redução da margem protetiva habitual'
                     },
                     {
                         nome: 'Time (Janela de Horário 48h)',
-                        valor: `${targetTx.Time}s (${horaFormatada})`,
+                        valor: `${timeSec}s (${horaFormatada})`,
                         peso: 'Janela Temporal',
                         isRisk: hora < 6,
                         barWidth: hora < 6 ? 85 : 30,
@@ -2051,10 +2084,10 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                         nome: 'Amount (Valor na Fatura)',
                         valor: totalFormatado,
                         peso: 'RobustScaler',
-                        isRisk: targetTx.Amount > 1000,
-                        barWidth: targetTx.Amount > 1000 ? 75 : 35,
-                        barClass: targetTx.Amount > 1000 ? 'xai-bar-warning' : 'xai-bar-success',
-                        interpretacao: targetTx.Amount > 1000 ? 'Ticket elevado: Exige maior rigor estatístico' : '✓ Valor compatível com a rotina do e-commerce'
+                        isRisk: amountVal > 1000,
+                        barWidth: amountVal > 1000 ? 75 : 35,
+                        barClass: amountVal > 1000 ? 'xai-bar-warning' : 'xai-bar-success',
+                        interpretacao: amountVal > 1000 ? 'Ticket elevado: Exige maior rigor estatístico' : '✓ Valor compatível com a rotina do e-commerce'
                     }
                 ];
 
@@ -2129,11 +2162,17 @@ HTML_DASHBOARD = """<!DOCTYPE html>
                             ? `<span class="badge-status badge-danger"><svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> DRIFT</span>` 
                             : `<span class="badge-status badge-success"><svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> ESTÁVEL</span>`;
 
+                        const ksVal = (metrics && metrics.ks_statistic !== undefined && metrics.ks_statistic !== null) ? Number(metrics.ks_statistic).toFixed(4) : '0.0000';
+                        const pVal = (metrics && metrics.p_value !== undefined && metrics.p_value !== null) ? Number(metrics.p_value).toFixed(5) : '1.00000';
+                        const psiVal = (metrics && metrics.psi !== undefined && metrics.psi !== null) ? Number(metrics.psi).toFixed(4) : '0.0000';
+                        const isPValRisk = (metrics && metrics.p_value !== undefined && metrics.p_value < 0.05);
+                        const isPsiRisk = (metrics && metrics.psi !== undefined && metrics.psi >= 0.20);
+
                         tr.innerHTML = `
                             <td><strong>${feat}</strong></td>
-                            <td>${metrics.ks_statistic.toFixed(4)}</td>
-                            <td class="${metrics.p_value < 0.05 ? 'text-danger fw-bold' : ''}">${metrics.p_value.toFixed(5)}</td>
-                            <td class="${metrics.psi >= 0.20 ? 'text-danger fw-bold' : ''}">${metrics.psi.toFixed(4)}</td>
+                            <td>${ksVal}</td>
+                            <td class="${isPValRisk ? 'text-danger fw-bold' : ''}">${pVal}</td>
+                            <td class="${isPsiRisk ? 'text-danger fw-bold' : ''}">${psiVal}</td>
                             <td>${statusBadge}</td>
                         `;
                         tbody.appendChild(tr);
